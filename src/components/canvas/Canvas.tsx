@@ -139,9 +139,9 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         return
       }
 
-      // Touch/pen pointerup may report button=-1; only reject non-primary mouse buttons.
-      const isTouchLikePointer = e.pointerType === 'touch' || e.pointerType === 'pen'
-      if (e.button !== 0 && !isTouchLikePointer) return
+      // Some tap pointerup events report button=-1 and may omit pointerType.
+      // Only reject explicit non-primary mouse buttons.
+      if (e.pointerType === 'mouse' && e.button !== 0) return
       const rect = svgRef.current!.getBoundingClientRect()
       const { x: mmX, y: mmY } = canvasToWorld(e.clientX - rect.left, e.clientY - rect.top)
       addPointAction(mmX, mmY)

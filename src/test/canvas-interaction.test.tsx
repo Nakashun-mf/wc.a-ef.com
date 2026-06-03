@@ -114,6 +114,20 @@ describe('Canvas tap interactions', () => {
     expect(currentPath.points[0]).toMatchObject({ x: 1, y: 1 })
   })
 
+  it('adds a point when a tap-like pointerup omits pointerType', async () => {
+    const { container } = render(<Canvas />)
+    const svg = container.querySelector('svg')
+
+    expect(svg).not.toBeNull()
+    await waitFor(() => expect(svg).toHaveAttribute('width', '600'))
+
+    fireEvent.pointerUp(svg!, { button: -1, clientX: 320, clientY: 180 })
+
+    const { currentPath } = useAppStore.getState()
+    expect(currentPath.points).toHaveLength(1)
+    expect(currentPath.points[0]).toMatchObject({ x: 1, y: 1 })
+  })
+
   it('selects an existing point without adding another point', async () => {
     resetStore(makePath([{ id: 'p1', x: 0, y: 0, freePlaced: false }]))
 
