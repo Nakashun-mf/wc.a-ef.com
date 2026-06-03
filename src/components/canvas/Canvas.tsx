@@ -19,6 +19,7 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
   const svgRef = useRef<SVGSVGElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ width: 600, height: 400 })
+  const [isPanningCursor, setIsPanningCursor] = useState(false)
 
   const currentPath = useAppStore(s => s.currentPath)
   const selectedPointId = useAppStore(s => s.selectedPointId)
@@ -98,6 +99,7 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
       if (e.button === 1 || spaceHeld.current) {
         e.preventDefault()
         panActive.current = true
+        setIsPanningCursor(true)
         panStart(e.clientX, e.clientY)
       }
     },
@@ -131,6 +133,7 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
     (e: React.PointerEvent<SVGSVGElement>) => {
       if (panActive.current) {
         panActive.current = false
+        setIsPanningCursor(false)
         panEnd()
         return
       }
@@ -283,8 +286,13 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
         ref={svgRef}
         width={size.width}
         height={size.height}
+<<<<<<< HEAD
         className="absolute inset-0 touch-none select-none"
         style={{ cursor: spaceHeld.current || panActive.current ? 'grab' : 'crosshair' }}
+=======
+        className="absolute inset-0 touch-none"
+        style={{ cursor: isPanningCursor ? 'grabbing' : 'crosshair' }}
+>>>>>>> c57d61c (既存のlintエラーを修正)
         onPointerDown={handleSvgPointerDown}
         onPointerMove={handleSvgPointerMove}
         onPointerUp={handleSvgPointerUp}
