@@ -19,6 +19,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ width: 600, height: 400 })
+  const [isPanningCursor, setIsPanningCursor] = useState(false)
 
   const currentPath = useAppStore(s => s.currentPath)
   const selectedPointId = useAppStore(s => s.selectedPointId)
@@ -92,6 +93,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         // Middle button or space: pan
         e.preventDefault()
         panActive.current = true
+        setIsPanningCursor(true)
         panStart(e.clientX, e.clientY)
         return
       }
@@ -127,6 +129,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
     (e: React.PointerEvent<SVGSVGElement>) => {
       if (panActive.current) {
         panActive.current = false
+        setIsPanningCursor(false)
         panEnd()
         return
       }
@@ -245,7 +248,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         width={size.width}
         height={size.height}
         className="absolute inset-0 touch-none"
-        style={{ cursor: panActive.current ? 'grabbing' : 'crosshair' }}
+        style={{ cursor: isPanningCursor ? 'grabbing' : 'crosshair' }}
         onPointerDown={handleSvgPointerDown}
         onPointerMove={handleSvgPointerMove}
         onPointerUp={handleSvgPointerUp}
