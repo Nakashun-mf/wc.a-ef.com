@@ -8,6 +8,7 @@ import { SimulationLayer } from './SimulationLayer'
 const LONG_PRESS_MS = 500
 const DRAG_THRESHOLD_PX = 6
 const INITIAL_SCALE = 20 // 20px per mm = 1mm on screen is 20px
+const INTERACTIVE_CANVAS_SELECTOR = '[data-canvas-interactive="true"]'
 
 interface CanvasProps {
   onPointLongPress?: (pointId: string) => void
@@ -135,6 +136,11 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         dragState.current = null
         clearLongPress()
         if (wasDrag) return
+      }
+
+      const target = e.target
+      if (target instanceof Element && target.closest(INTERACTIVE_CANVAS_SELECTOR)) {
+        return
       }
 
       // Add new point on tap/click
