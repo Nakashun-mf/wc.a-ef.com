@@ -6,7 +6,7 @@ import { PathLayer } from './PathLayer'
 import { SimulationLayer } from './SimulationLayer'
 
 const LONG_PRESS_MS = 500
-const DRAG_THRESHOLD_PX = 6
+const DRAG_THRESHOLD_PX = 10
 const INITIAL_SCALE = 20 // 20px per mm = 1mm on screen is 20px
 const INTERACTIVE_CANVAS_SELECTOR = '[data-canvas-interactive="true"]'
 
@@ -50,6 +50,9 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   // Pan state (middle mouse / space+drag)
   const panActive = useRef(false)
   const spaceHeld = useRef(false)
+
+  // Deduplication: did handleTouchEnd already fire for the current touch?
+  const touchHandled = useRef(false)
 
   // Observe container size
   useEffect(() => {
@@ -151,9 +154,12 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         return
       }
 
-      // Touch input is handled exclusively by handleTouchEnd to avoid
-      // double-adding: real browsers fire touchend before pointerup.
-      if (e.pointerType === 'touch') return
+      // If touchend already fired for this tap, skip (real browsers fire
+      // touchend before pointerup). If touchend never fired (pointer-only
+      // environments), fall through so the point still gets added.
+      if (e.pointerType === 'touch') {
+        if (touchHandled.current) return
+      }
       // Only reject explicit non-primary mouse buttons.
       if (e.pointerType === 'mouse' && e.button !== 0) return
       addPointAtClientPosition(e.clientX, e.clientY)
@@ -234,6 +240,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   const singleTouchStart = useRef<{ x: number; y: number; moved: boolean } | null>(null)
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchHandled.current = false
     if (e.touches.length === 1) {
       singleTouchStart.current = {
         x: e.touches[0].clientX,
@@ -280,6 +287,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
+      touchHandled.current = true
       if (lastPinchDist.current !== null) {
         lastPinchDist.current = null
         singleTouchStart.current = null
