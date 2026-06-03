@@ -1,0 +1,83 @@
+{
+  "app": {
+    "title": "ワイヤ放電加工 プログラム支援"
+  },
+  "toolbar": {
+    "newPath": "新規作成",
+    "clear": "クリア",
+    "undo": "元に戻す",
+    "redo": "やり直す",
+    "orthoMode": "直交モード",
+    "snap": "スナップ",
+    "grid": "グリッド",
+    "simulate": "シミュレーション",
+    "settings": "設定"
+  },
+  "sidebar": {
+    "currentPath": "現在のパス",
+    "history": "履歴",
+    "noPoints": "メインエリアをタップして点を打ちましょう",
+    "noHistory": "保存された履歴はありません"
+  },
+  "coordinates": {
+    "point": "点",
+    "x": "X",
+    "y": "Y",
+    "constrained": "拘束あり"
+  },
+  "history": {
+    "open": "開く",
+    "rename": "名前を変更",
+    "delete": "削除",
+    "namePlaceholder": "パス名を入力"
+  },
+  "edit": {
+    "title": "座標を編集",
+    "xLabel": "X 座標 (mm)",
+    "yLabel": "Y 座標 (mm)",
+    "confirm": "確定",
+    "cancel": "キャンセル",
+    "deletePoint": "このポイントを削除",
+    "releaseConstraint": "拘束を解除"
+  },
+  "confirm": {
+    "deletePoint": "このポイントを削除しますか？",
+    "deletePointDesc": "この操作は元に戻すことができます。",
+    "clearPath": "現在のパスをクリアしますか？",
+    "clearPathDesc": "この操作は元に戻せません。",
+    "deleteHistory": "この履歴を削除しますか？",
+    "deleteHistoryDesc": "この操作は元に戻せません。",
+    "yes": "はい",
+    "cancel": "キャンセル"
+  },
+  "simulation": {
+    "title": "シミュレーション",
+    "speed": "速度",
+    "speedUnit": "mm/秒",
+    "skip": "スキップ",
+    "stop": "停止",
+    "needPoints": "ポイントが2つ以上必要です"
+  },
+  "settings": {
+    "title": "設定",
+    "theme": "テーマ",
+    "themeSystem": "システム設定に従う",
+    "themeLight": "ライト",
+    "themeDark": "ダーク",
+    "language": "言語",
+    "langJa": "日本語",
+    "langEn": "English"
+  },
+  "onboarding": {
+    "title": "使い方",
+    "step1": "メインエリアをタップして点を打つ",
+    "step2": "座標リストで数値を直接編集できる",
+    "step3": "直交モードで直角パスを自動作成",
+    "step4": "シミュレーションで加工経路を確認",
+    "close": "始める"
+  },
+  "errors": {
+    "invalidNumber": "有効な数値を入力してください",
+    "loadFailed": "データの読み込みに失敗しました"
+  }
+}

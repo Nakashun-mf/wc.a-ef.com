@@ -1,0 +1,83 @@
+{
+  "app": {
+    "title": "Wire EDM Programming Assistant"
+  },
+  "toolbar": {
+    "newPath": "New",
+    "clear": "Clear",
+    "undo": "Undo",
+    "redo": "Redo",
+    "orthoMode": "Ortho",
+    "snap": "Snap",
+    "grid": "Grid",
+    "simulate": "Simulate",
+    "settings": "Settings"
+  },
+  "sidebar": {
+    "currentPath": "Current Path",
+    "history": "History",
+    "noPoints": "Tap the canvas to place points",
+    "noHistory": "No saved history"
+  },
+  "coordinates": {
+    "point": "Point",
+    "x": "X",
+    "y": "Y",
+    "constrained": "Constrained"
+  },
+  "history": {
+    "open": "Open",
+    "rename": "Rename",
+    "delete": "Delete",
+    "namePlaceholder": "Enter path name"
+  },
+  "edit": {
+    "title": "Edit Coordinate",
+    "xLabel": "X coordinate (mm)",
+    "yLabel": "Y coordinate (mm)",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "deletePoint": "Delete this point",
+    "releaseConstraint": "Release constraint"
+  },
+  "confirm": {
+    "deletePoint": "Delete this point?",
+    "deletePointDesc": "This action can be undone.",
+    "clearPath": "Clear the current path?",
+    "clearPathDesc": "This action cannot be undone.",
+    "deleteHistory": "Delete this history entry?",
+    "deleteHistoryDesc": "This action cannot be undone.",
+    "yes": "Yes",
+    "cancel": "Cancel"
+  },
+  "simulation": {
+    "title": "Simulation",
+    "speed": "Speed",
+    "speedUnit": "mm/s",
+    "skip": "Skip",
+    "stop": "Stop",
+    "needPoints": "Need at least 2 points"
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "themeSystem": "Follow system",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "language": "Language",
+    "langJa": "日本語",
+    "langEn": "English"
+  },
+  "onboarding": {
+    "title": "How to use",
+    "step1": "Tap the canvas to place points",
+    "step2": "Edit coordinates directly in the list",
+    "step3": "Ortho mode creates right-angle paths automatically",
+    "step4": "Use simulation to preview the machining path",
+    "close": "Get started"
+  },
+  "errors": {
+    "invalidNumber": "Please enter a valid number",
+    "loadFailed": "Failed to load data"
+  }
+}
