@@ -45,6 +45,7 @@ function PointMarker({ point, index, selected, constrained, transform, onPointer
 
   return (
     <g
+      data-canvas-interactive="true"
       style={{ cursor: 'grab' }}
       onPointerDown={onPointerDown}
       onClick={e => { e.stopPropagation(); onClick() }}
@@ -99,7 +100,7 @@ function SegmentLine({ seg, from, to, selected, transform, onClick }: SegmentLin
   const color = selected ? 'var(--warn)' : getSegmentColor(seg)
 
   return (
-    <g onClick={e => { e.stopPropagation(); onClick() }}>
+    <g data-canvas-interactive="true" onClick={e => { e.stopPropagation(); onClick() }}>
       {/* Hit area */}
       <line
         x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
