@@ -14,6 +14,9 @@ interface PathLayerProps {
   onPointClick: (id: string) => void
   onSegmentClick: (id: string) => void
   onPointDragStart: (id: string, e: React.PointerEvent) => void
+  onSegmentPointerDown: (id: string, e: React.PointerEvent) => void
+  onSegmentPointerUp: (e: React.PointerEvent) => void
+  onSegmentContextMenu: (id: string, e: React.MouseEvent) => void
 }
 
 function worldToCanvas(wx: number, wy: number, t: CanvasTransform) {
@@ -89,9 +92,12 @@ interface SegmentLineProps {
   selected: boolean
   transform: CanvasTransform
   onClick: () => void
+  onPointerDown: (e: React.PointerEvent) => void
+  onPointerUp: (e: React.PointerEvent) => void
+  onContextMenu: (e: React.MouseEvent) => void
 }
 
-function SegmentLine({ seg, from, to, selected, transform, onClick }: SegmentLineProps) {
+function SegmentLine({ seg, from, to, selected, transform, onClick, onPointerDown, onPointerUp, onContextMenu }: SegmentLineProps) {
   const p1 = worldToCanvas(from.x, from.y, transform)
   const p2 = worldToCanvas(to.x, to.y, transform)
   const mx = (p1.x + p2.x) / 2
@@ -99,7 +105,12 @@ function SegmentLine({ seg, from, to, selected, transform, onClick }: SegmentLin
   const color = selected ? 'var(--warn)' : getSegmentColor(seg)
 
   return (
-    <g onClick={e => { e.stopPropagation(); onClick() }}>
+    <g
+      onClick={e => { e.stopPropagation(); onClick() }}
+      onPointerDown={e => { e.stopPropagation(); onPointerDown(e) }}
+      onPointerUp={e => { e.stopPropagation(); onPointerUp(e) }}
+      onContextMenu={e => { e.stopPropagation(); onContextMenu(e) }}
+    >
       {/* Hit area */}
       <line
         x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
@@ -135,6 +146,9 @@ export function PathLayer({
   onPointClick,
   onSegmentClick,
   onPointDragStart,
+  onSegmentPointerDown,
+  onSegmentPointerUp,
+  onSegmentContextMenu,
 }: PathLayerProps) {
   const pointMap = new Map(path.points.map(p => [p.id, p]))
   const constrainedPointIds = new Set<string>()
@@ -160,6 +174,9 @@ export function PathLayer({
             selected={selectedSegmentId === seg.id}
             transform={transform}
             onClick={() => onSegmentClick(seg.id)}
+            onPointerDown={e => onSegmentPointerDown(seg.id, e)}
+            onPointerUp={e => onSegmentPointerUp(e)}
+            onContextMenu={e => onSegmentContextMenu(seg.id, e)}
           />
         )
       })}
