@@ -128,6 +128,99 @@ describe('Canvas tap interactions', () => {
     expect(currentPath.points[0]).toMatchObject({ x: 1, y: 1 })
   })
 
+  it('adds a point from single-touch events when pointer events are unavailable', async () => {
+    const { container } = render(<Canvas />)
+    const svg = container.querySelector('svg')
+
+    expect(svg).not.toBeNull()
+    await waitFor(() => expect(svg).toHaveAttribute('width', '600'))
+
+    fireEvent.touchStart(svg!, {
+      touches: [{ clientX: 320, clientY: 180 }],
+      changedTouches: [{ clientX: 320, clientY: 180 }],
+    })
+    fireEvent.touchEnd(svg!, {
+      touches: [],
+      changedTouches: [{ clientX: 320, clientY: 180 }],
+    })
+
+    const { currentPath } = useAppStore.getState()
+    expect(currentPath.points).toHaveLength(1)
+    expect(currentPath.points[0]).toMatchObject({ x: 1, y: 1 })
+  })
+
+  it('does not add duplicate points when pointer and touch events both fire for one tap', async () => {
+    const { container } = render(<Canvas />)
+    const svg = container.querySelector('svg')
+
+    expect(svg).not.toBeNull()
+    await waitFor(() => expect(svg).toHaveAttribute('width', '600'))
+
+    fireEvent.touchStart(svg!, {
+      touches: [{ clientX: 320, clientY: 180 }],
+      changedTouches: [{ clientX: 320, clientY: 180 }],
+    })
+    fireEvent.pointerUp(svg!, { pointerType: 'touch', button: -1, clientX: 320, clientY: 180 })
+    fireEvent.touchEnd(svg!, {
+      touches: [],
+      changedTouches: [{ clientX: 320, clientY: 180 }],
+    })
+
+    const { currentPath } = useAppStore.getState()
+    expect(currentPath.points).toHaveLength(1)
+  })
+
+  it('does not add a point when a single touch moves beyond the tap threshold', async () => {
+    const { container } = render(<Canvas />)
+    const svg = container.querySelector('svg')
+
+    expect(svg).not.toBeNull()
+    await waitFor(() => expect(svg).toHaveAttribute('width', '600'))
+
+    fireEvent.touchStart(svg!, {
+      touches: [{ clientX: 320, clientY: 180 }],
+      changedTouches: [{ clientX: 320, clientY: 180 }],
+    })
+    fireEvent.touchMove(svg!, {
+      touches: [{ clientX: 340, clientY: 200 }],
+      changedTouches: [{ clientX: 340, clientY: 200 }],
+    })
+    fireEvent.touchEnd(svg!, {
+      touches: [],
+      changedTouches: [{ clientX: 340, clientY: 200 }],
+    })
+
+    expect(useAppStore.getState().currentPath.points).toHaveLength(0)
+  })
+
+  it('does not add a point after a two-finger touch gesture', async () => {
+    const { container } = render(<Canvas />)
+    const svg = container.querySelector('svg')
+
+    expect(svg).not.toBeNull()
+    await waitFor(() => expect(svg).toHaveAttribute('width', '600'))
+
+    fireEvent.touchStart(svg!, {
+      touches: [
+        { clientX: 300, clientY: 180 },
+        { clientX: 340, clientY: 180 },
+      ],
+      changedTouches: [
+        { clientX: 300, clientY: 180 },
+        { clientX: 340, clientY: 180 },
+      ],
+    })
+    fireEvent.touchEnd(svg!, {
+      touches: [],
+      changedTouches: [
+        { clientX: 300, clientY: 180 },
+        { clientX: 340, clientY: 180 },
+      ],
+    })
+
+    expect(useAppStore.getState().currentPath.points).toHaveLength(0)
+  })
+
   it('selects an existing point without adding another point', async () => {
     resetStore(makePath([{ id: 'p1', x: 0, y: 0, freePlaced: false }]))
 
@@ -146,6 +239,29 @@ describe('Canvas tap interactions', () => {
     const { currentPath, selectedPointId } = useAppStore.getState()
     expect(currentPath.points).toHaveLength(1)
     expect(selectedPointId).toBe('p1')
+  })
+
+  it('does not add another point when touch-tapping an existing point without pointer events', async () => {
+    resetStore(makePath([{ id: 'p1', x: 0, y: 0, freePlaced: false }]))
+
+    const { container } = render(<Canvas />)
+    const hitArea = await waitFor(() => {
+      const element = container.querySelector('circle[fill="transparent"]')
+      expect(element).not.toBeNull()
+      expect(element).toHaveAttribute('cx', '300')
+      return element
+    })
+
+    fireEvent.touchStart(hitArea!, {
+      touches: [{ clientX: 300, clientY: 200 }],
+      changedTouches: [{ clientX: 300, clientY: 200 }],
+    })
+    fireEvent.touchEnd(hitArea!, {
+      touches: [],
+      changedTouches: [{ clientX: 300, clientY: 200 }],
+    })
+
+    expect(useAppStore.getState().currentPath.points).toHaveLength(1)
   })
 
   it('selects an existing segment without adding another point', async () => {
@@ -180,5 +296,43 @@ describe('Canvas tap interactions', () => {
     const { currentPath, selectedSegmentId } = useAppStore.getState()
     expect(currentPath.points).toHaveLength(2)
     expect(selectedSegmentId).toBe('s1')
+  })
+
+  it('does not add another point when touch-tapping an existing segment without pointer events', async () => {
+    resetStore(
+      makePath(
+        [
+          { id: 'p1', x: -1, y: 0, freePlaced: false },
+          { id: 'p2', x: 1, y: 0, freePlaced: false },
+        ],
+        [
+          {
+            id: 's1',
+            fromPointId: 'p1',
+            toPointId: 'p2',
+            orientation: 'horizontal',
+            isConstrained: true,
+          },
+        ]
+      )
+    )
+
+    const { container } = render(<Canvas />)
+    const hitArea = await waitFor(() => {
+      const element = container.querySelector('line[stroke="transparent"]')
+      expect(element).not.toBeNull()
+      return element
+    })
+
+    fireEvent.touchStart(hitArea!, {
+      touches: [{ clientX: 300, clientY: 200 }],
+      changedTouches: [{ clientX: 300, clientY: 200 }],
+    })
+    fireEvent.touchEnd(hitArea!, {
+      touches: [],
+      changedTouches: [{ clientX: 300, clientY: 200 }],
+    })
+
+    expect(useAppStore.getState().currentPath.points).toHaveLength(2)
   })
 })

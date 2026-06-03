@@ -48,6 +48,7 @@ function PointMarker({ point, index, selected, constrained, transform, onPointer
 
   return (
     <g
+      data-canvas-interactive="true"
       style={{ cursor: 'grab' }}
       onPointerDown={onPointerDown}
       onClick={e => { e.stopPropagation(); onClick() }}
@@ -106,6 +107,7 @@ function SegmentLine({ seg, from, to, selected, transform, onClick, onPointerDow
 
   return (
     <g
+      data-canvas-interactive="true"
       onClick={e => { e.stopPropagation(); onClick() }}
       onPointerDown={e => { e.stopPropagation(); onPointerDown(e) }}
       onPointerUp={e => { e.stopPropagation(); onPointerUp(e) }}

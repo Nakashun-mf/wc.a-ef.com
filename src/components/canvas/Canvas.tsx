@@ -7,7 +7,9 @@ import { SimulationLayer } from './SimulationLayer'
 
 const LONG_PRESS_MS = 500
 const DRAG_THRESHOLD_PX = 6
+const RECENT_POINTER_TAP_MS = 700
 const INITIAL_SCALE = 20 // 20px per mm = 1mm on screen is 20px
+const INTERACTIVE_CANVAS_SELECTOR = '[data-canvas-interactive="true"]'
 
 interface CanvasProps {
   onPointLongPress?: (pointId: string) => void
@@ -86,6 +88,17 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
 
   // ── SVG event handlers ───────────────────────────────────────────────────
 
+  const addPointAtClientPosition = useCallback(
+    (clientX: number, clientY: number) => {
+      const rect = svgRef.current!.getBoundingClientRect()
+      const { x: mmX, y: mmY } = canvasToWorld(clientX - rect.left, clientY - rect.top)
+      addPointAction(mmX, mmY)
+      selectPoint(null)
+      selectSegment(null)
+    },
+    [canvasToWorld, addPointAction, selectPoint, selectSegment]
+  )
+
   const handleSvgPointerDown = useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
       if (e.button === 1 || spaceHeld.current) {
@@ -142,13 +155,10 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
       // Some tap pointerup events report button=-1 and may omit pointerType.
       // Only reject explicit non-primary mouse buttons.
       if (e.pointerType === 'mouse' && e.button !== 0) return
-      const rect = svgRef.current!.getBoundingClientRect()
-      const { x: mmX, y: mmY } = canvasToWorld(e.clientX - rect.left, e.clientY - rect.top)
-      addPointAction(mmX, mmY)
-      selectPoint(null)
-      selectSegment(null)
+      addPointAtClientPosition(e.clientX, e.clientY)
+      lastPointerTap.current = { time: Date.now(), x: e.clientX, y: e.clientY }
     },
-    [panEnd, canvasToWorld, addPointAction, selectPoint, selectSegment, clearLongPress]
+    [panEnd, addPointAtClientPosition, clearLongPress]
   )
 
   // Wheel zoom (PC only)
@@ -203,8 +213,20 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
 
   // Pinch zoom (mobile)
   const lastPinchDist = useRef<number | null>(null)
+  const singleTouchStart = useRef<{ x: number; y: number; moved: boolean } | null>(null)
+  const lastPointerTap = useRef<{ time: number; x: number; y: number } | null>(null)
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      singleTouchStart.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+        moved: false,
+      }
+      return
+    }
+
+    singleTouchStart.current = null
     if (e.touches.length === 2) {
       const dx = e.touches[0].clientX - e.touches[1].clientX
       const dy = e.touches[0].clientY - e.touches[1].clientY
@@ -214,8 +236,17 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
 
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
+      if (e.touches.length === 1 && singleTouchStart.current) {
+        const dx = e.touches[0].clientX - singleTouchStart.current.x
+        const dy = e.touches[0].clientY - singleTouchStart.current.y
+        if (Math.hypot(dx, dy) > DRAG_THRESHOLD_PX) {
+          singleTouchStart.current.moved = true
+        }
+      }
+
       if (e.touches.length === 2 && lastPinchDist.current !== null) {
         e.preventDefault()
+        singleTouchStart.current = null
         const dx = e.touches[0].clientX - e.touches[1].clientX
         const dy = e.touches[0].clientY - e.touches[1].clientY
         const newDist = Math.hypot(dx, dy)
@@ -230,9 +261,33 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
     [zoom]
   )
 
-  const handleTouchEnd = useCallback(() => {
-    lastPinchDist.current = null
-  }, [])
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (lastPinchDist.current !== null) {
+        lastPinchDist.current = null
+        singleTouchStart.current = null
+        return
+      }
+
+      const touch = e.changedTouches[0]
+      const start = singleTouchStart.current
+      singleTouchStart.current = null
+      if (!touch || !start || start.moved) return
+
+      const target = e.target
+      if (target instanceof Element && target.closest(INTERACTIVE_CANVAS_SELECTOR)) return
+
+      const recentPointerTap = lastPointerTap.current
+      if (recentPointerTap) {
+        const elapsed = Date.now() - recentPointerTap.time
+        const distance = Math.hypot(touch.clientX - recentPointerTap.x, touch.clientY - recentPointerTap.y)
+        if (elapsed < RECENT_POINTER_TAP_MS && distance <= DRAG_THRESHOLD_PX) return
+      }
+
+      addPointAtClientPosition(touch.clientX, touch.clientY)
+    },
+    [addPointAtClientPosition]
+  )
 
 
   return (
