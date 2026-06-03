@@ -7,7 +7,6 @@ import { SimulationLayer } from './SimulationLayer'
 
 const LONG_PRESS_MS = 500
 const DRAG_THRESHOLD_PX = 6
-const RECENT_POINTER_TAP_MS = 700
 const INITIAL_SCALE = 20 // 20px per mm = 1mm on screen is 20px
 const INTERACTIVE_CANVAS_SELECTOR = '[data-canvas-interactive="true"]'
 
@@ -152,13 +151,32 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         return
       }
 
-      // Some tap pointerup events report button=-1 and may omit pointerType.
+      // Touch input is handled exclusively by handleTouchEnd to avoid
+      // double-adding: real browsers fire touchend before pointerup.
+      if (e.pointerType === 'touch') return
       // Only reject explicit non-primary mouse buttons.
       if (e.pointerType === 'mouse' && e.button !== 0) return
       addPointAtClientPosition(e.clientX, e.clientY)
-      lastPointerTap.current = { time: Date.now(), x: e.clientX, y: e.clientY }
     },
     [panEnd, addPointAtClientPosition, clearLongPress]
+  )
+
+  // Separate pointerleave handler: only cancels pan/drag, never adds points.
+  // On mobile, pointerleave fires when a touch ends (the touch pointer is removed),
+  // so reusing handleSvgPointerUp here would incorrectly add extra points.
+  const handleSvgPointerLeave = useCallback(
+    (_e: React.PointerEvent<SVGSVGElement>) => {
+      if (panActive.current) {
+        panActive.current = false
+        setIsPanningCursor(false)
+        panEnd()
+      }
+      if (dragState.current?.active) {
+        dragState.current = null
+        clearLongPress()
+      }
+    },
+    [panEnd, clearLongPress]
   )
 
   // Wheel zoom (PC only)
@@ -214,7 +232,6 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   // Pinch zoom (mobile)
   const lastPinchDist = useRef<number | null>(null)
   const singleTouchStart = useRef<{ x: number; y: number; moved: boolean } | null>(null)
-  const lastPointerTap = useRef<{ time: number; x: number; y: number } | null>(null)
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.touches.length === 1) {
@@ -277,13 +294,6 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
       const target = e.target
       if (target instanceof Element && target.closest(INTERACTIVE_CANVAS_SELECTOR)) return
 
-      const recentPointerTap = lastPointerTap.current
-      if (recentPointerTap) {
-        const elapsed = Date.now() - recentPointerTap.time
-        const distance = Math.hypot(touch.clientX - recentPointerTap.x, touch.clientY - recentPointerTap.y)
-        if (elapsed < RECENT_POINTER_TAP_MS && distance <= DRAG_THRESHOLD_PX) return
-      }
-
       addPointAtClientPosition(touch.clientX, touch.clientY)
     },
     [addPointAtClientPosition]
@@ -301,7 +311,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         onPointerDown={handleSvgPointerDown}
         onPointerMove={handleSvgPointerMove}
         onPointerUp={handleSvgPointerUp}
-        onPointerLeave={handleSvgPointerUp}
+        onPointerLeave={handleSvgPointerLeave}
         onWheel={handleWheel}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}

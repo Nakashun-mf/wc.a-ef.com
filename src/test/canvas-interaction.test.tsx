@@ -100,14 +100,14 @@ describe('Canvas tap interactions', () => {
     expect(currentPath.points[0]).toMatchObject({ x: 1, y: 1 })
   })
 
-  it('adds a point for touch pointerup events without a primary mouse button', async () => {
+  it('adds a point for pen (stylus) input via pointer events', async () => {
     const { container } = render(<Canvas />)
     const svg = container.querySelector('svg')
 
     expect(svg).not.toBeNull()
     await waitFor(() => expect(svg).toHaveAttribute('width', '600'))
 
-    fireEvent.pointerUp(svg!, { pointerType: 'touch', button: -1, clientX: 320, clientY: 180 })
+    fireEvent.pointerUp(svg!, { pointerType: 'pen', button: 0, clientX: 320, clientY: 180 })
 
     const { currentPath } = useAppStore.getState()
     expect(currentPath.points).toHaveLength(1)
@@ -149,22 +149,24 @@ describe('Canvas tap interactions', () => {
     expect(currentPath.points[0]).toMatchObject({ x: 1, y: 1 })
   })
 
-  it('does not add duplicate points when pointer and touch events both fire for one tap', async () => {
+  it('does not add duplicate points when touch and pointer events both fire for one tap (real browser order)', async () => {
     const { container } = render(<Canvas />)
     const svg = container.querySelector('svg')
 
     expect(svg).not.toBeNull()
     await waitFor(() => expect(svg).toHaveAttribute('width', '600'))
 
+    // Real browsers fire in this order: touchstart → touchend → pointerup → pointerleave
     fireEvent.touchStart(svg!, {
       touches: [{ clientX: 320, clientY: 180 }],
       changedTouches: [{ clientX: 320, clientY: 180 }],
     })
-    fireEvent.pointerUp(svg!, { pointerType: 'touch', button: -1, clientX: 320, clientY: 180 })
     fireEvent.touchEnd(svg!, {
       touches: [],
       changedTouches: [{ clientX: 320, clientY: 180 }],
     })
+    // pointerup with pointerType:'touch' is now skipped — touch is handled by touchEnd
+    fireEvent.pointerUp(svg!, { pointerType: 'touch', button: -1, clientX: 320, clientY: 180 })
 
     const { currentPath } = useAppStore.getState()
     expect(currentPath.points).toHaveLength(1)
