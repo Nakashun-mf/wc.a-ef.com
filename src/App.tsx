@@ -81,7 +81,6 @@ export function App() {
             <Canvas
               onPointLongPress={id => setLongPressPoint(id)}
               onPointClick={() => setLongPressPoint(null)}
-              onSegmentLongPress={id => setReleaseConfirm(id)}
             />
             <SimulationControls />
           </div>

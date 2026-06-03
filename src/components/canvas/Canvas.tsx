@@ -7,15 +7,14 @@ import { SimulationLayer } from './SimulationLayer'
 
 const LONG_PRESS_MS = 500
 const DRAG_THRESHOLD_PX = 6
-const INITIAL_SCALE = 20 // 20 px per mm
+const INITIAL_SCALE = 20 // 20px per mm = 1mm on screen is 20px
 
 interface CanvasProps {
   onPointLongPress?: (pointId: string) => void
-  onSegmentLongPress?: (segmentId: string) => void
   onPointClick?: (pointId: string) => void
 }
 
-export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: CanvasProps) {
+export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ width: 600, height: 400 })
@@ -32,10 +31,10 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
   const selectSegment = useAppStore(s => s.selectSegment)
   const storeDragPoint = useAppStore(s => s.dragPoint)
 
-  const { transform, setTransform, zoom, panStart, panMove, panEnd, reset, canvasToWorld, worldToCanvas } =
+  const { transform, zoom, panStart, panMove, panEnd, reset, canvasToWorld, worldToCanvas } =
     useCanvasTransform(INITIAL_SCALE)
 
-  // Drag state for points
+  // Track drag state
   const dragState = useRef<{
     active: boolean
     pointId: string
@@ -44,11 +43,10 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
     moved: boolean
   } | null>(null)
 
-  // Long-press timers
-  const pointLongPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const segmentLongPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const longPressTarget = useRef<{ type: 'point' | 'segment'; id: string } | null>(null)
 
-  // Pan state (middle mouse or space+drag)
+  // Pan state (middle mouse / space+drag)
   const panActive = useRef(false)
   const spaceHeld = useRef(false)
 
@@ -64,44 +62,41 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
     return () => ro.disconnect()
   }, [])
 
-  // Initialize canvas origin at center on first mount / size change
+  // Initialize origin to center on first mount / size change
   useEffect(() => {
     if (size.width > 0) reset(size.width, size.height)
   }, [size.width]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Keyboard: space for pan
+  // Keyboard pan
   useEffect(() => {
-    const dn = (e: KeyboardEvent) => { if (e.code === 'Space' && !e.repeat) { e.preventDefault(); spaceHeld.current = true } }
-    const up = (e: KeyboardEvent) => { if (e.code === 'Space') spaceHeld.current = false }
-    window.addEventListener('keydown', dn)
-    window.addEventListener('keyup', up)
-    return () => { window.removeEventListener('keydown', dn); window.removeEventListener('keyup', up) }
+    const onKeyDown = (e: KeyboardEvent) => { if (e.code === 'Space') spaceHeld.current = true }
+    const onKeyUp = (e: KeyboardEvent) => { if (e.code === 'Space') spaceHeld.current = false }
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    return () => { window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keyup', onKeyUp) }
   }, [])
 
-  const clearPointLongPress = useCallback(() => {
-    if (pointLongPressTimer.current) {
-      clearTimeout(pointLongPressTimer.current)
-      pointLongPressTimer.current = null
+  const clearLongPress = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current)
+      longPressTimer.current = null
     }
+    longPressTarget.current = null
   }, [])
 
-  const clearSegmentLongPress = useCallback(() => {
-    if (segmentLongPressTimer.current) {
-      clearTimeout(segmentLongPressTimer.current)
-      segmentLongPressTimer.current = null
-    }
-  }, [])
-
-  // ── SVG root pointer handlers ─────────────────────────────────────────────
+  // ── SVG event handlers ───────────────────────────────────────────────────
 
   const handleSvgPointerDown = useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
       if (e.button === 1 || spaceHeld.current) {
+        // Middle button or space: pan
         e.preventDefault()
         panActive.current = true
         setIsPanningCursor(true)
         panStart(e.clientX, e.clientY)
+        return
       }
+      // No-op; point/segment handlers take priority
     },
     [panStart]
   )
@@ -117,16 +112,16 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
         const dy = e.clientY - dragState.current.startY
         if (!dragState.current.moved && Math.hypot(dx, dy) > DRAG_THRESHOLD_PX) {
           dragState.current.moved = true
-          clearPointLongPress()
+          clearLongPress()
         }
         if (dragState.current.moved) {
           const rect = svgRef.current!.getBoundingClientRect()
-          const { x, y } = canvasToWorld(e.clientX - rect.left, e.clientY - rect.top)
-          storeDragPoint(dragState.current.pointId, x, y)
+          const { x: mmX, y: mmY } = canvasToWorld(e.clientX - rect.left, e.clientY - rect.top)
+          storeDragPoint(dragState.current.pointId, mmX, mmY)
         }
       }
     },
-    [panMove, canvasToWorld, storeDragPoint, clearPointLongPress]
+    [panMove, canvasToWorld, storeDragPoint, clearLongPress]
   )
 
   const handleSvgPointerUp = useCallback(
@@ -138,36 +133,24 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
         return
       }
 
-      // If we were handling a point interaction (drag or tap-on-point), do NOT add a new point.
-      // Point selection is handled by the PointMarker's own onClick.
       if (dragState.current?.active) {
         dragState.current = null
-        clearPointLongPress()
+        clearLongPress()
         return
       }
 
+      // Add new point on tap/click
       if (e.button !== 0) return
-
       const rect = svgRef.current!.getBoundingClientRect()
-      const pxX = e.clientX - rect.left
-      const pxY = e.clientY - rect.top
-
-      if (currentPath.points.length === 0) {
-        // P1 = origin: move canvas origin to the tapped position, place P1 at (0,0)
-        setTransform(prev => ({ ...prev, offsetX: pxX, offsetY: pxY }))
-        addPointAction(0, 0)
-      } else {
-        const { x: mmX, y: mmY } = canvasToWorld(pxX, pxY)
-        addPointAction(mmX, mmY)
-      }
-
+      const { x: mmX, y: mmY } = canvasToWorld(e.clientX - rect.left, e.clientY - rect.top)
+      addPointAction(mmX, mmY)
       selectPoint(null)
       selectSegment(null)
     },
-    [panEnd, currentPath.points.length, canvasToWorld, addPointAction, selectPoint, selectSegment, clearPointLongPress, setTransform]
+    [panEnd, canvasToWorld, addPointAction, selectPoint, selectSegment, clearLongPress]
   )
 
-  // Wheel zoom (PC)
+  // Wheel zoom (PC only)
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {
       e.preventDefault()
@@ -177,7 +160,7 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
     [zoom]
   )
 
-  // ── Point interactions ────────────────────────────────────────────────────
+  // ── Point drag start ──────────────────────────────────────────────────────
 
   const handlePointDragStart = useCallback(
     (pointId: string, e: React.PointerEvent) => {
@@ -189,12 +172,14 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
         startY: e.clientY,
         moved: false,
       }
-      pointLongPressTimer.current = setTimeout(() => {
-        if (dragState.current && !dragState.current.moved) {
+      // Long press detection
+      longPressTarget.current = { type: 'point', id: pointId }
+      longPressTimer.current = setTimeout(() => {
+        if (!dragState.current?.moved) {
           onPointLongPress?.(pointId)
           dragState.current = null
         }
-        pointLongPressTimer.current = null
+        longPressTarget.current = null
       }, LONG_PRESS_MS)
     },
     [onPointLongPress]
@@ -208,46 +193,14 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
     [selectPoint, onPointClick]
   )
 
-  // ── Segment interactions ──────────────────────────────────────────────────
-
-  const handleSegmentPointerDown = useCallback(
-    (segmentId: string, e: React.PointerEvent) => {
-      e.stopPropagation()
-      segmentLongPressTimer.current = setTimeout(() => {
-        onSegmentLongPress?.(segmentId)
-        segmentLongPressTimer.current = null
-      }, LONG_PRESS_MS)
-    },
-    [onSegmentLongPress]
-  )
-
   const handleSegmentClick = useCallback(
     (segmentId: string) => {
-      clearSegmentLongPress()
       selectSegment(segmentId)
     },
-    [selectSegment, clearSegmentLongPress]
+    [selectSegment]
   )
 
-  const handleSegmentPointerUp = useCallback(
-    (_e: React.PointerEvent) => {
-      clearSegmentLongPress()
-    },
-    [clearSegmentLongPress]
-  )
-
-  // Right-click on segment → release constraint (PC convenience)
-  const handleSegmentContextMenu = useCallback(
-    (segmentId: string, e: React.MouseEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      onSegmentLongPress?.(segmentId)
-    },
-    [onSegmentLongPress]
-  )
-
-  // ── Pinch zoom (mobile) ───────────────────────────────────────────────────
-
+  // Pinch zoom (mobile)
   const lastPinchDist = useRef<number | null>(null)
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -280,19 +233,15 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
     lastPinchDist.current = null
   }, [])
 
+
   return (
     <div ref={containerRef} className="relative flex-1 overflow-hidden bg-[var(--paper-2)]">
       <svg
         ref={svgRef}
         width={size.width}
         height={size.height}
-<<<<<<< HEAD
-        className="absolute inset-0 touch-none select-none"
-        style={{ cursor: spaceHeld.current || panActive.current ? 'grab' : 'crosshair' }}
-=======
         className="absolute inset-0 touch-none"
         style={{ cursor: isPanningCursor ? 'grabbing' : 'crosshair' }}
->>>>>>> c57d61c (既存のlintエラーを修正)
         onPointerDown={handleSvgPointerDown}
         onPointerMove={handleSvgPointerMove}
         onPointerUp={handleSvgPointerUp}
@@ -311,7 +260,20 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
           />
         )}
 
-        {simulation.running || simulation.progress >= 1 ? (
+        {!simulation.running && simulation.progress < 1 ? (
+          <PathLayer
+            path={currentPath}
+            selectedPointId={selectedPointId}
+            selectedSegmentId={selectedSegmentId}
+            transform={transform}
+            onPointClick={handlePointClick}
+            onSegmentClick={handleSegmentClick}
+            onPointDragStart={handlePointDragStart}
+            onSegmentPointerDown={() => {}}
+            onSegmentPointerUp={() => {}}
+            onSegmentContextMenu={() => {}}
+          />
+        ) : (
           <>
             <PathLayer
               path={currentPath}
@@ -319,9 +281,9 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
               selectedSegmentId={null}
               transform={transform}
               onPointClick={() => {}}
+              onSegmentClick={() => {}}
               onPointDragStart={() => {}}
               onSegmentPointerDown={() => {}}
-              onSegmentClick={() => {}}
               onSegmentPointerUp={() => {}}
               onSegmentContextMenu={() => {}}
             />
@@ -331,19 +293,6 @@ export function Canvas({ onPointLongPress, onSegmentLongPress, onPointClick }: C
               transform={transform}
             />
           </>
-        ) : (
-          <PathLayer
-            path={currentPath}
-            selectedPointId={selectedPointId}
-            selectedSegmentId={selectedSegmentId}
-            transform={transform}
-            onPointClick={handlePointClick}
-            onPointDragStart={handlePointDragStart}
-            onSegmentPointerDown={handleSegmentPointerDown}
-            onSegmentClick={handleSegmentClick}
-            onSegmentPointerUp={handleSegmentPointerUp}
-            onSegmentContextMenu={handleSegmentContextMenu}
-          />
         )}
 
         {/* Origin label */}
