@@ -14,12 +14,19 @@ function OrthoStepIcon() {
 
 const ONBOARDING_KEY = 'wc-onboarding-done'
 
+function isOnboardingDone(): boolean {
+  try { if (localStorage.getItem(ONBOARDING_KEY)) return true } catch { /* private browsing */ }
+  try { if (sessionStorage.getItem(ONBOARDING_KEY)) return true } catch { /* unlikely */ }
+  return false
+}
+
 export function OnboardingDialog() {
   const { t } = useTranslation()
-  const [open, setOpen] = useState(() => !localStorage.getItem(ONBOARDING_KEY))
+  const [open, setOpen] = useState(() => !isOnboardingDone())
 
   const handleClose = () => {
-    try { localStorage.setItem(ONBOARDING_KEY, '1') } catch { /* private browsing / quota exceeded */ }
+    try { localStorage.setItem(ONBOARDING_KEY, '1') } catch { /* private browsing */ }
+    try { sessionStorage.setItem(ONBOARDING_KEY, '1') } catch { /* unlikely */ }
     setOpen(false)
   }
 
