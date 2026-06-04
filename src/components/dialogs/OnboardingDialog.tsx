@@ -19,7 +19,7 @@ export function OnboardingDialog() {
   const [open, setOpen] = useState(() => !localStorage.getItem(ONBOARDING_KEY))
 
   const handleClose = () => {
-    localStorage.setItem(ONBOARDING_KEY, '1')
+    try { localStorage.setItem(ONBOARDING_KEY, '1') } catch { /* private browsing / quota exceeded */ }
     setOpen(false)
   }
 
