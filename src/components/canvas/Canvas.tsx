@@ -88,21 +88,25 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
     longPressTarget.current = null
   }, [])
 
+  const dbg = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === 'true'
+
   // ── SVG event handlers ───────────────────────────────────────────────────
 
   const addPointAtClientPosition = useCallback(
     (clientX: number, clientY: number) => {
+      if (dbg) console.log('[canvas] addPoint', { clientX, clientY })
       const rect = svgRef.current!.getBoundingClientRect()
       const { x: mmX, y: mmY } = canvasToWorld(clientX - rect.left, clientY - rect.top)
       addPointAction(mmX, mmY)
       selectPoint(null)
       selectSegment(null)
     },
-    [canvasToWorld, addPointAction, selectPoint, selectSegment]
+    [canvasToWorld, addPointAction, selectPoint, selectSegment, dbg]
   )
 
   const handleSvgPointerDown = useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
+      if (dbg) console.log('[canvas] pointerDown', { type: e.pointerType, button: e.button })
       if (e.button === 1 || spaceHeld.current) {
         // Middle button or space: pan
         e.preventDefault()
@@ -141,6 +145,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
 
   const handleSvgPointerUp = useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
+      if (dbg) console.log('[canvas] pointerUp', { type: e.pointerType, button: e.button, touchHandled: touchHandled.current })
       if (panActive.current) {
         panActive.current = false
         setIsPanningCursor(false)
@@ -240,6 +245,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   const singleTouchStart = useRef<{ x: number; y: number; moved: boolean } | null>(null)
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (dbg) console.log('[canvas] touchStart', e.touches.length, 'touches')
     touchHandled.current = false
     if (e.touches.length === 1) {
       singleTouchStart.current = {
@@ -287,6 +293,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
+      if (dbg) console.log('[canvas] touchEnd', { start: singleTouchStart.current, target: (e.target as Element)?.tagName })
       touchHandled.current = true
       if (lastPinchDist.current !== null) {
         lastPinchDist.current = null
