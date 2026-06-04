@@ -90,6 +90,31 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
 
   const dbg = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === 'true'
 
+  // Document-level debug: see if events reach the document at all, and what element is hit
+  useEffect(() => {
+    if (!dbg) return
+    const onDown = (e: PointerEvent) => {
+      const hit = document.elementFromPoint(e.clientX, e.clientY)
+      console.log('[doc] pointerdown', e.pointerType, 'target:', (e.target as Element)?.tagName, 'hit:', hit?.tagName, hit?.className?.toString().slice(0, 60))
+    }
+    const onUp = (e: PointerEvent) => {
+      console.log('[doc] pointerup', e.pointerType, 'target:', (e.target as Element)?.tagName)
+    }
+    const onTouch = (e: TouchEvent) => {
+      const t = e.changedTouches[0]
+      const hit = document.elementFromPoint(t.clientX, t.clientY)
+      console.log('[doc] touchend hit:', hit?.tagName, hit?.className?.toString().slice(0, 60))
+    }
+    document.addEventListener('pointerdown', onDown)
+    document.addEventListener('pointerup', onUp)
+    document.addEventListener('touchend', onTouch)
+    return () => {
+      document.removeEventListener('pointerdown', onDown)
+      document.removeEventListener('pointerup', onUp)
+      document.removeEventListener('touchend', onTouch)
+    }
+  }, [dbg])
+
   // ── SVG event handlers ───────────────────────────────────────────────────
 
   const addPointAtClientPosition = useCallback(
