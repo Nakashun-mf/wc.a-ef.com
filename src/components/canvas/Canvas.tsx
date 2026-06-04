@@ -94,24 +94,16 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   useEffect(() => {
     if (!dbg) return
     const onDown = (e: PointerEvent) => {
-      const hit = document.elementFromPoint(e.clientX, e.clientY)
-      console.log('[doc] pointerdown', e.pointerType, 'target:', (e.target as Element)?.tagName, 'hit:', hit?.tagName, hit?.className?.toString().slice(0, 60))
-    }
-    const onUp = (e: PointerEvent) => {
-      console.log('[doc] pointerup', e.pointerType, 'target:', (e.target as Element)?.tagName)
-    }
-    const onTouch = (e: TouchEvent) => {
-      const t = e.changedTouches[0]
-      const hit = document.elementFromPoint(t.clientX, t.clientY)
-      console.log('[doc] touchend hit:', hit?.tagName, hit?.className?.toString().slice(0, 60))
+      const stack = document.elementsFromPoint(e.clientX, e.clientY)
+      console.log('[doc] pointerdown', e.pointerType, 'stack:', stack.map(el => {
+        const cls = el.className?.toString().slice(0, 40)
+        const ds = Object.keys((el as HTMLElement).dataset ?? {}).map(k => `data-${k}`).join(' ')
+        return `${el.tagName}${cls ? '[' + cls + ']' : ''}${ds ? '{' + ds + '}' : ''}`
+      }).join(' > '))
     }
     document.addEventListener('pointerdown', onDown)
-    document.addEventListener('pointerup', onUp)
-    document.addEventListener('touchend', onTouch)
     return () => {
       document.removeEventListener('pointerdown', onDown)
-      document.removeEventListener('pointerup', onUp)
-      document.removeEventListener('touchend', onTouch)
     }
   }, [dbg])
 
