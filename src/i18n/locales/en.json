@@ -17,7 +17,7 @@
     "help": "How to use"
   },
   "sidebar": {
-    "currentPath": "Current Path",
+    "currentPath": "Current Route",
     "history": "History",
     "noPoints": "Tap the canvas to place points",
     "noHistory": "No saved history"
@@ -26,13 +26,13 @@
     "point": "Point",
     "x": "X",
     "y": "Y",
-    "constrained": "Constrained"
+    "constrained": "Fixed"
   },
   "history": {
     "open": "Open",
     "rename": "Rename",
     "delete": "Delete",
-    "namePlaceholder": "Enter path name"
+    "namePlaceholder": "Enter route name"
   },
   "edit": {
     "title": "Edit Coordinate",
@@ -40,13 +40,13 @@
     "yLabel": "Y coordinate (mm)",
     "confirm": "Confirm",
     "cancel": "Cancel",
-    "deletePoint": "Delete this point",
+    "deletePoint": "Remove this point",
     "releaseConstraint": "Release constraint"
   },
   "confirm": {
-    "deletePoint": "Delete this point?",
+    "deletePoint": "Remove this point?",
     "deletePointDesc": "This action can be undone.",
-    "clearPath": "Clear the current path?",
+    "clearPath": "Clear the current route?",
     "clearPathDesc": "This action cannot be undone.",
     "deleteHistory": "Delete this history entry?",
     "deleteHistoryDesc": "This action cannot be undone.",
@@ -63,7 +63,7 @@
     "end": "End",
     "skip": "Skip",
     "stop": "Stop",
-    "needPoints": "Need at least 2 points"
+    "needPoints": "Place at least 2 points"
   },
   "settings": {
     "title": "Settings",
@@ -79,8 +79,8 @@
     "title": "How to use",
     "step1": "Tap the canvas to place points",
     "step2": "Edit coordinates directly in the list",
-    "step3": "Ortho mode creates right-angle paths automatically",
-    "step4": "Use simulation to preview the machining path",
+    "step3": "Ortho mode creates right-angle routes automatically",
+    "step4": "Use simulation to preview the machining route",
     "close": "Get started"
   },
   "help": {
@@ -88,13 +88,13 @@
     "next": "Next",
     "close": "Close",
     "step1_title": "Add points",
-    "step1_desc": "Tap anywhere on the canvas to place a point. Each new point connects to the previous one with a segment.",
-    "step2_title": "Create an ortho path",
-    "step2_desc": "With Ortho mode on, segments snap to horizontal or vertical. Blue = horizontal, green = vertical.",
+    "step1_desc": "Tap anywhere on the canvas to place a point. Points connect to form a route.",
+    "step2_title": "Create an ortho route",
+    "step2_desc": "With Ortho mode on, lines snap to horizontal or vertical. Blue = horizontal, green = vertical.",
     "step3_title": "Move & edit points",
     "step3_desc": "Tap a point to select it; drag to move it. Long-press to open a coordinate editor.",
     "step4_title": "Simulation",
-    "step4_desc": "With 2 or more points, start the simulation to preview the wire path in real time.",
+    "step4_desc": "With 2 or more points, start the simulation to preview the wire route in real time.",
     "step5_title": "Add / Edit mode",
     "step5_desc": "Add mode places points on tap. Edit mode lets you pan the canvas by dragging. Switch from the toolbar."
   },

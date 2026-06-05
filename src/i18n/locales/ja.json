@@ -17,7 +17,7 @@
     "help": "使い方"
   },
   "sidebar": {
-    "currentPath": "現在のパス",
+    "currentPath": "今の経路",
     "history": "履歴",
     "noPoints": "メインエリアをタップして点を打ちましょう",
     "noHistory": "保存された履歴はありません"
@@ -26,13 +26,13 @@
     "point": "点",
     "x": "X",
     "y": "Y",
-    "constrained": "拘束あり"
+    "constrained": "固定"
   },
   "history": {
     "open": "開く",
     "rename": "名前を変更",
     "delete": "削除",
-    "namePlaceholder": "パス名を入力"
+    "namePlaceholder": "経路名を入力"
   },
   "edit": {
     "title": "座標を編集",
@@ -40,13 +40,13 @@
     "yLabel": "Y 座標 (mm)",
     "confirm": "確定",
     "cancel": "キャンセル",
-    "deletePoint": "このポイントを削除",
+    "deletePoint": "この点を削除",
     "releaseConstraint": "拘束を解除"
   },
   "confirm": {
-    "deletePoint": "このポイントを削除しますか？",
+    "deletePoint": "この点を削除しますか？",
     "deletePointDesc": "この操作は元に戻すことができます。",
-    "clearPath": "現在のパスをクリアしますか？",
+    "clearPath": "今の経路をクリアしますか？",
     "clearPathDesc": "この操作は元に戻せません。",
     "deleteHistory": "この履歴を削除しますか？",
     "deleteHistoryDesc": "この操作は元に戻せません。",
@@ -63,7 +63,7 @@
     "end": "終了",
     "skip": "スキップ",
     "stop": "停止",
-    "needPoints": "ポイントが2つ以上必要です"
+    "needPoints": "点を2つ以上打ってください"
   },
   "settings": {
     "title": "設定",
@@ -79,7 +79,7 @@
     "title": "使い方",
     "step1": "メインエリアをタップして点を打つ",
     "step2": "座標リストで数値を直接編集できる",
-    "step3": "直交モードで直角パスを自動作成",
+    "step3": "直交モードで直角経路を自動作成",
     "step4": "シミュレーションで加工経路を確認",
     "close": "始める"
   },
@@ -88,9 +88,9 @@
     "next": "次へ",
     "close": "閉じる",
     "step1_title": "点を追加する",
-    "step1_desc": "メインエリアの空いた場所をタップすると点が追加されます。点と点がつながってパスになります。",
-    "step2_title": "直交パスを作る",
-    "step2_desc": "直交モードがオンのとき、セグメントは自動で水平・垂直に整列します。青が水平、緑が垂直セグメントです。",
+    "step1_desc": "メインエリアの空いた場所をタップすると点が追加されます。点と点がつながって経路になります。",
+    "step2_title": "直交経路を作る",
+    "step2_desc": "直交モードがオンのとき、線が自動で縦か横にそろいます。青が横の線、緑が縦の線です。",
     "step3_title": "点を移動・編集する",
     "step3_desc": "点をタップして選択、ドラッグで移動できます。長押しで座標を数値入力するダイアログが開きます。",
     "step4_title": "シミュレーション",

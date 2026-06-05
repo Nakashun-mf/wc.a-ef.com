@@ -124,7 +124,7 @@ export function App() {
         {releaseConfirm && (
           <ConfirmDialog
             title="拘束を解除しますか？"
-            description="このセグメントの拘束を解除します。"
+            description="この線の拘束を解除します。"
             onConfirm={() => {
               releaseConstraint(releaseConfirm)
               setReleaseConfirm(null)
