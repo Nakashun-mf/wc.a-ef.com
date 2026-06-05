@@ -75,7 +75,9 @@
     "themeDark": "Dark",
     "language": "Language",
     "langJa": "日本語",
-    "langEn": "English"
+    "langEn": "English",
+    "display": "Display",
+    "showPointCoords": "Show point coordinates"
   },
   "onboarding": {
     "title": "How to use",

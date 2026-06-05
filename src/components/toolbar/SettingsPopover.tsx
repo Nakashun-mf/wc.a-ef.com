@@ -3,14 +3,17 @@ import { Settings, Sun, Moon, Monitor } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/store/appStore'
 import { Button } from '@/components/ui/Button'
+import { Switch } from '@/components/ui/Switch'
 import type { Theme, Language } from '@/domain/types'
 
 export function SettingsPopover() {
   const { t, i18n } = useTranslation()
   const theme = useAppStore(s => s.theme)
   const language = useAppStore(s => s.language)
+  const showPointCoords = useAppStore(s => s.showPointCoords)
   const setTheme = useAppStore(s => s.setTheme)
   const setLanguage = useAppStore(s => s.setLanguage)
+  const setShowPointCoords = useAppStore(s => s.setShowPointCoords)
 
   const handleLanguage = (lang: Language) => {
     setLanguage(lang)
@@ -77,6 +80,16 @@ export function SettingsPopover() {
                   {lang === 'ja' ? t('settings.langJa') : t('settings.langEn')}
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-wider text-[var(--ink-3)] mb-2">
+              {t('settings.display')}
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] text-[var(--ink-2)]">{t('settings.showPointCoords')}</span>
+              <Switch size="sm" checked={showPointCoords} onCheckedChange={setShowPointCoords} />
             </div>
           </div>
 

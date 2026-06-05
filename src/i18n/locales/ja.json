@@ -75,7 +75,9 @@
     "themeDark": "ダーク",
     "language": "言語",
     "langJa": "日本語",
-    "langEn": "English"
+    "langEn": "English",
+    "display": "表示",
+    "showPointCoords": "点の座標を表示"
   },
   "onboarding": {
     "title": "使い方",

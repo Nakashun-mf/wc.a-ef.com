@@ -27,6 +27,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   const selectedSegmentId = useAppStore(s => s.selectedSegmentId)
   const gridVisible = useAppStore(s => s.gridVisible)
   const gridSizeMm = useAppStore(s => s.gridSizeMm)
+  const showPointCoords = useAppStore(s => s.showPointCoords)
   const simulation = useAppStore(s => s.simulation)
   const editMode = useAppStore(s => s.editMode)
   const addPointAction = useAppStore(s => s.addPoint)
@@ -388,6 +389,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
             selectedPointId={selectedPointId}
             selectedSegmentId={selectedSegmentId}
             transform={transform}
+            showCoords={showPointCoords}
             onPointClick={handlePointClick}
             onSegmentClick={handleSegmentClick}
             onPointDragStart={handlePointDragStart}

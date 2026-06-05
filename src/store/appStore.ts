@@ -36,6 +36,7 @@ interface AppState {
   snapEnabled: boolean
   gridVisible: boolean
   gridSizeMm: number
+  showPointCoords: boolean
   isMobile: boolean
 
   // Selection
@@ -74,6 +75,7 @@ interface AppState {
   setOrthoMode: (v: boolean) => void
   setSnapEnabled: (v: boolean) => void
   setGridVisible: (v: boolean) => void
+  setShowPointCoords: (v: boolean) => void
   setIsMobile: (v: boolean) => void
 
   // Actions — selection
@@ -109,6 +111,7 @@ export const useAppStore = create<AppState>()(
     snapEnabled: true,
     gridVisible: true,
     gridSizeMm: 1,
+    showPointCoords: false,
     isMobile: false,
     selectedPointId: null,
     selectedSegmentId: null,
@@ -314,6 +317,10 @@ export const useAppStore = create<AppState>()(
 
     setGridVisible(v) {
       set({ gridVisible: v })
+    },
+
+    setShowPointCoords(v) {
+      set({ showPointCoords: v })
     },
 
     setIsMobile(v) {

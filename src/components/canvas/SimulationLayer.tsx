@@ -96,7 +96,7 @@ export function SimulationLayer({ path, progress, transform }: SimulationLayerPr
         <path
           d={trailD}
           fill="none"
-          stroke="var(--signal)"
+          stroke="var(--warn)"
           strokeWidth={2.5}
           strokeLinecap="round"
           strokeLinejoin="round"
