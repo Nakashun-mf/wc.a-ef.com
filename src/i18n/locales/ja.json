@@ -56,6 +56,8 @@
     "title": "シミュレーション",
     "speed": "速度",
     "speedUnit": "mm/秒",
+    "pause": "一時停止",
+    "resume": "再開",
     "skip": "スキップ",
     "stop": "停止",
     "needPoints": "ポイントが2つ以上必要です"

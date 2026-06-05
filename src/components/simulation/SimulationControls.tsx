@@ -1,4 +1,4 @@
-import { SkipForward, Square } from 'lucide-react'
+import { Pause, Play, SkipForward, Square } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/store/appStore'
 import { useSimulation } from '@/hooks/useSimulation'
@@ -9,10 +9,17 @@ export function SimulationControls() {
   const { t } = useTranslation()
   const simulation = useAppStore(s => s.simulation)
   const setSimulation = useAppStore(s => s.setSimulation)
-  const stopSimulation = useAppStore(s => s.stopSimulation)
   const { skip } = useSimulation()
 
-  if (!simulation.running && simulation.progress < 1) return null
+  // Show while running, paused, or completed
+  if (!simulation.running && simulation.progress <= 0) return null
+
+  const isRunning = simulation.running
+  const isPaused = !simulation.running && simulation.progress > 0 && simulation.progress < 1
+
+  const pause = () => setSimulation({ running: false })
+  const resume = () => setSimulation({ running: true })
+  const stop = () => setSimulation({ running: false, progress: 0, trailProgress: 0 })
 
   return (
     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
@@ -39,13 +46,27 @@ export function SimulationControls() {
           </span>
         </div>
 
-        {/* Row 2: Skip / Stop */}
+        {/* Row 2: Pause/Resume · Skip · Stop */}
         <div className="flex items-center justify-center gap-2">
-          <Button size="sm" variant="ghost" onClick={skip}>
-            <SkipForward size={14} strokeWidth={1.75} />
-            {t('simulation.skip')}
-          </Button>
-          <Button size="sm" variant="ghost" onClick={stopSimulation}>
+          {isRunning && (
+            <Button size="sm" variant="ghost" onClick={pause}>
+              <Pause size={14} strokeWidth={1.75} />
+              {t('simulation.pause')}
+            </Button>
+          )}
+          {isPaused && (
+            <Button size="sm" variant="ghost" onClick={resume}>
+              <Play size={14} strokeWidth={1.75} />
+              {t('simulation.resume')}
+            </Button>
+          )}
+          {simulation.progress < 1 && (
+            <Button size="sm" variant="ghost" onClick={skip}>
+              <SkipForward size={14} strokeWidth={1.75} />
+              {t('simulation.skip')}
+            </Button>
+          )}
+          <Button size="sm" variant="ghost" onClick={stop}>
             <Square size={14} strokeWidth={1.75} />
             {t('simulation.stop')}
           </Button>
