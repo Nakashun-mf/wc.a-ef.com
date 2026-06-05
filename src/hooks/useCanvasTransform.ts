@@ -6,8 +6,8 @@ export interface CanvasTransform {
   offsetY: number
 }
 
-const MIN_SCALE = 0.2
-const MAX_SCALE = 10
+const MIN_SCALE = 0.5
+const MAX_SCALE = 200
 const SCROLL_SENSITIVITY = 0.001
 
 export function useCanvasTransform(initialScale = 1) {

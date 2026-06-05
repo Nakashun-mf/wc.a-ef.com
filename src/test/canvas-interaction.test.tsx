@@ -149,14 +149,14 @@ describe('Canvas tap interactions', () => {
     expect(currentPath.points[0]).toMatchObject({ x: 1, y: 1 })
   })
 
-  it('does not add duplicate points when touch and pointer events both fire for one tap (real browser order)', async () => {
+  it('does not add duplicate points when touch and pointer events both fire (Android order: touchend before pointerup)', async () => {
     const { container } = render(<Canvas />)
     const svg = container.querySelector('svg')
 
     expect(svg).not.toBeNull()
     await waitFor(() => expect(svg).toHaveAttribute('width', '600'))
 
-    // Real browsers fire in this order: touchstart → touchend → pointerup → pointerleave
+    // Android Chrome: touchstart → touchend → pointerup
     fireEvent.touchStart(svg!, {
       touches: [{ clientX: 320, clientY: 180 }],
       changedTouches: [{ clientX: 320, clientY: 180 }],
@@ -165,7 +165,6 @@ describe('Canvas tap interactions', () => {
       touches: [],
       changedTouches: [{ clientX: 320, clientY: 180 }],
     })
-    // pointerup with pointerType:'touch' is now skipped — touch is handled by touchEnd
     fireEvent.pointerUp(svg!, { pointerType: 'touch', button: -1, clientX: 320, clientY: 180 })
 
     const { currentPath } = useAppStore.getState()

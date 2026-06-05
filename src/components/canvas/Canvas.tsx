@@ -53,6 +53,9 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   const panActive = useRef(false)
   const spaceHeld = useRef(false)
 
+  // Edit mode: delay pan start until movement exceeds threshold
+  const editPanPending = useRef<{ x: number; y: number } | null>(null)
+
   // Deduplication: did handleTouchEnd already fire for the current touch?
   const touchHandled = useRef(false)
 
@@ -90,21 +93,42 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
     longPressTarget.current = null
   }, [])
 
+  const dbg = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === 'true'
+
+  // Document-level debug: see if events reach the document at all, and what element is hit
+  useEffect(() => {
+    if (!dbg) return
+    const onDown = (e: PointerEvent) => {
+      const stack = document.elementsFromPoint(e.clientX, e.clientY)
+      console.log('[doc] pointerdown', e.pointerType, 'stack:', stack.map(el => {
+        const cls = el.className?.toString().slice(0, 40)
+        const ds = Object.keys((el as HTMLElement).dataset ?? {}).map(k => `data-${k}`).join(' ')
+        return `${el.tagName}${cls ? '[' + cls + ']' : ''}${ds ? '{' + ds + '}' : ''}`
+      }).join(' > '))
+    }
+    document.addEventListener('pointerdown', onDown)
+    return () => {
+      document.removeEventListener('pointerdown', onDown)
+    }
+  }, [dbg])
+
   // ── SVG event handlers ───────────────────────────────────────────────────
 
   const addPointAtClientPosition = useCallback(
     (clientX: number, clientY: number) => {
+      if (dbg) console.log('[canvas] addPoint', { clientX, clientY })
       const rect = svgRef.current!.getBoundingClientRect()
       const { x: mmX, y: mmY } = canvasToWorld(clientX - rect.left, clientY - rect.top)
       addPointAction(mmX, mmY)
       selectPoint(null)
       selectSegment(null)
     },
-    [canvasToWorld, addPointAction, selectPoint, selectSegment]
+    [canvasToWorld, addPointAction, selectPoint, selectSegment, dbg]
   )
 
   const handleSvgPointerDown = useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
+      if (dbg) console.log('[canvas] pointerDown', { type: e.pointerType, button: e.button })
       if (e.button === 1 || spaceHeld.current) {
         // Middle button or space: pan
         e.preventDefault()
@@ -113,11 +137,9 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         panStart(e.clientX, e.clientY)
         return
       }
-      // Edit mode: single touch/click on empty space → pan canvas
+      // Edit mode: record start position; pan activates only after threshold in pointerMove
       if (editMode && e.button === 0) {
-        panActive.current = true
-        setIsPanningCursor(true)
-        panStart(e.clientX, e.clientY)
+        editPanPending.current = { x: e.clientX, y: e.clientY }
         return
       }
       // No-op; point/segment handlers take priority
@@ -127,6 +149,17 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
 
   const handleSvgPointerMove = useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
+      // Edit mode: activate pan once finger/cursor has moved beyond threshold
+      if (editPanPending.current) {
+        const dx = e.clientX - editPanPending.current.x
+        const dy = e.clientY - editPanPending.current.y
+        if (Math.hypot(dx, dy) > DRAG_THRESHOLD_PX) {
+          panStart(editPanPending.current.x, editPanPending.current.y)
+          panActive.current = true
+          setIsPanningCursor(true)
+          editPanPending.current = null
+        }
+      }
       if (panActive.current) {
         panMove(e.clientX, e.clientY)
         return
@@ -145,11 +178,13 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         }
       }
     },
-    [panMove, canvasToWorld, storeDragPoint, clearLongPress]
+    [panStart, panMove, canvasToWorld, storeDragPoint, clearLongPress]
   )
 
   const handleSvgPointerUp = useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
+      if (dbg) console.log('[canvas] pointerUp', { type: e.pointerType, button: e.button, touchHandled: touchHandled.current })
+      editPanPending.current = null
       if (panActive.current) {
         panActive.current = false
         setIsPanningCursor(false)
@@ -181,6 +216,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   // so reusing handleSvgPointerUp here would incorrectly add extra points.
   const handleSvgPointerLeave = useCallback(
     (_e: React.PointerEvent<SVGSVGElement>) => {
+      editPanPending.current = null
       if (panActive.current) {
         panActive.current = false
         setIsPanningCursor(false)
@@ -249,6 +285,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   const singleTouchStart = useRef<{ x: number; y: number; moved: boolean } | null>(null)
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (dbg) console.log('[canvas] touchStart', e.touches.length, 'touches')
     touchHandled.current = false
     if (e.touches.length === 1) {
       singleTouchStart.current = {
@@ -296,6 +333,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
+      if (dbg) console.log('[canvas] touchEnd', { start: singleTouchStart.current, target: (e.target as Element)?.tagName })
       touchHandled.current = true
       if (lastPinchDist.current !== null) {
         lastPinchDist.current = null
@@ -344,7 +382,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
           />
         )}
 
-        {!simulation.running && simulation.progress < 1 ? (
+        {simulation.progress <= 0 && !simulation.running ? (
           <PathLayer
             path={currentPath}
             selectedPointId={selectedPointId}
