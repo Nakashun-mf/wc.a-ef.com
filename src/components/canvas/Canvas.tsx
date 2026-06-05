@@ -176,12 +176,10 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         return
       }
 
-      // If touchend already fired for this tap, skip (real browsers fire
-      // touchend before pointerup). If touchend never fired (pointer-only
-      // environments), fall through so the point still gets added.
-      if (e.pointerType === 'touch') {
-        if (touchHandled.current) return
-      }
+      // Touch input is handled exclusively by handleTouchEnd.
+      // iOS Safari fires pointerup BEFORE touchend, so a touchHandled flag
+      // would always be false here — always skip touch pointerup instead.
+      if (e.pointerType === 'touch') return
       // Only reject explicit non-primary mouse buttons.
       if (e.pointerType === 'mouse' && e.button !== 0) return
       addPointAtClientPosition(e.clientX, e.clientY)
