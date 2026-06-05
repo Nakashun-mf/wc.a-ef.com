@@ -6,6 +6,8 @@ import {
   Play,
   Magnet,
   Grid3X3,
+  Pen,
+  MousePointer,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/store/appStore'
@@ -27,6 +29,7 @@ function OrthoIcon({ size = 16 }: { size?: number }) {
 
 export function Toolbar() {
   const { t } = useTranslation()
+  const editMode = useAppStore(s => s.editMode)
   const orthoMode = useAppStore(s => s.orthoMode)
   const snapEnabled = useAppStore(s => s.snapEnabled)
   const gridVisible = useAppStore(s => s.gridVisible)
@@ -36,6 +39,7 @@ export function Toolbar() {
   const currentPath = useAppStore(s => s.currentPath)
   const simulation = useAppStore(s => s.simulation)
 
+  const setEditMode = useAppStore(s => s.setEditMode)
   const setOrthoMode = useAppStore(s => s.setOrthoMode)
   const setSnapEnabled = useAppStore(s => s.setSnapEnabled)
   const setGridVisible = useAppStore(s => s.setGridVisible)
@@ -64,6 +68,34 @@ export function Toolbar() {
             Wire EDM
           </span>
         )}
+      </div>
+
+      {/* Mode toggle */}
+      <div className="flex items-center rounded-[var(--r-md)] border border-[var(--line)] overflow-hidden mr-1">
+        <Tooltip content={t('toolbar.modeAdd')} side="bottom">
+          <button
+            onClick={() => setEditMode(false)}
+            className={`h-8 w-8 flex items-center justify-center transition-colors ${
+              !editMode
+                ? 'bg-[var(--signal-wash)] text-[var(--signal-ink)]'
+                : 'text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)]'
+            }`}
+          >
+            <Pen size={14} strokeWidth={1.75} />
+          </button>
+        </Tooltip>
+        <Tooltip content={t('toolbar.modeEdit')} side="bottom">
+          <button
+            onClick={() => setEditMode(true)}
+            className={`h-8 w-8 flex items-center justify-center transition-colors ${
+              editMode
+                ? 'bg-[var(--signal-wash)] text-[var(--signal-ink)]'
+                : 'text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)]'
+            }`}
+          >
+            <MousePointer size={14} strokeWidth={1.75} />
+          </button>
+        </Tooltip>
       </div>
 
       {/* File actions */}

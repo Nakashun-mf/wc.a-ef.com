@@ -27,6 +27,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   const gridVisible = useAppStore(s => s.gridVisible)
   const gridSizeMm = useAppStore(s => s.gridSizeMm)
   const simulation = useAppStore(s => s.simulation)
+  const editMode = useAppStore(s => s.editMode)
   const addPointAction = useAppStore(s => s.addPoint)
   const selectPoint = useAppStore(s => s.selectPoint)
   const selectSegment = useAppStore(s => s.selectSegment)
@@ -111,9 +112,16 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         panStart(e.clientX, e.clientY)
         return
       }
+      // Edit mode: single touch/click on empty space → pan canvas
+      if (editMode && e.button === 0) {
+        panActive.current = true
+        setIsPanningCursor(true)
+        panStart(e.clientX, e.clientY)
+        return
+      }
       // No-op; point/segment handlers take priority
     },
-    [panStart]
+    [panStart, editMode]
   )
 
   const handleSvgPointerMove = useCallback(
@@ -154,17 +162,17 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         return
       }
 
-      // If touchend already fired for this tap, skip (real browsers fire
-      // touchend before pointerup). If touchend never fired (pointer-only
-      // environments), fall through so the point still gets added.
-      if (e.pointerType === 'touch') {
-        if (touchHandled.current) return
-      }
+      // Touch input is handled exclusively by handleTouchEnd.
+      // iOS Safari fires pointerup BEFORE touchend, so a touchHandled flag
+      // would always be false here — always skip touch pointerup instead.
+      if (e.pointerType === 'touch') return
       // Only reject explicit non-primary mouse buttons.
       if (e.pointerType === 'mouse' && e.button !== 0) return
+      // Edit mode: no point addition
+      if (editMode) return
       addPointAtClientPosition(e.clientX, e.clientY)
     },
-    [panEnd, addPointAtClientPosition, clearLongPress]
+    [panEnd, addPointAtClientPosition, clearLongPress, editMode]
   )
 
   // Separate pointerleave handler: only cancels pan/drag, never adds points.
@@ -302,20 +310,21 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
       const target = e.target
       if (target instanceof Element && target.closest(INTERACTIVE_CANVAS_SELECTOR)) return
 
+      if (editMode) return
       addPointAtClientPosition(touch.clientX, touch.clientY)
     },
-    [addPointAtClientPosition]
+    [addPointAtClientPosition, editMode]
   )
 
 
   return (
-    <div ref={containerRef} className="relative flex-1 overflow-hidden bg-[var(--paper-2)]">
+    <div ref={containerRef} className="relative h-full overflow-hidden bg-[var(--paper-2)]">
       <svg
         ref={svgRef}
         width={size.width}
         height={size.height}
         className="absolute inset-0 touch-none"
-        style={{ cursor: isPanningCursor ? 'grabbing' : 'crosshair' }}
+        style={{ cursor: isPanningCursor ? 'grabbing' : editMode ? 'default' : 'crosshair' }}
         onPointerDown={handleSvgPointerDown}
         onPointerMove={handleSvgPointerMove}
         onPointerUp={handleSvgPointerUp}

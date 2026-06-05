@@ -31,6 +31,7 @@ interface AppState {
   redoStack: WirePath[]
 
   // Modes
+  editMode: boolean
   orthoMode: boolean
   snapEnabled: boolean
   gridVisible: boolean
@@ -68,6 +69,7 @@ interface AppState {
   redo: () => void
 
   // Actions — mode
+  setEditMode: (v: boolean) => void
   setOrthoMode: (v: boolean) => void
   setSnapEnabled: (v: boolean) => void
   setGridVisible: (v: boolean) => void
@@ -97,6 +99,7 @@ export const useAppStore = create<AppState>()(
     paths: {},
     undoStack: [],
     redoStack: [],
+    editMode: false,
     orthoMode: true,
     snapEnabled: true,
     gridVisible: true,
@@ -274,6 +277,10 @@ export const useAppStore = create<AppState>()(
         undoStack: [...undoStack, currentPath],
         selectedPointId: null,
       })
+    },
+
+    setEditMode(v) {
+      set({ editMode: v })
     },
 
     setOrthoMode(v) {

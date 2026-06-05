@@ -172,6 +172,29 @@ describe('Canvas tap interactions', () => {
     expect(currentPath.points).toHaveLength(1)
   })
 
+  it('does not add duplicate points on iOS Safari where pointerup fires before touchend', async () => {
+    const { container } = render(<Canvas />)
+    const svg = container.querySelector('svg')
+
+    expect(svg).not.toBeNull()
+    await waitFor(() => expect(svg).toHaveAttribute('width', '600'))
+
+    // iOS Safari: touchstart → pointerup → touchend (pointerup fires before touchend)
+    fireEvent.touchStart(svg!, {
+      touches: [{ clientX: 320, clientY: 180 }],
+      changedTouches: [{ clientX: 320, clientY: 180 }],
+    })
+    // pointerup fires first on iOS — must be skipped so touchend can add the point
+    fireEvent.pointerUp(svg!, { pointerType: 'touch', button: -1, clientX: 320, clientY: 180 })
+    fireEvent.touchEnd(svg!, {
+      touches: [],
+      changedTouches: [{ clientX: 320, clientY: 180 }],
+    })
+
+    const { currentPath } = useAppStore.getState()
+    expect(currentPath.points).toHaveLength(1)
+  })
+
   it('does not add a point when a single touch moves beyond the tap threshold', async () => {
     const { container } = render(<Canvas />)
     const svg = container.querySelector('svg')
