@@ -76,7 +76,7 @@ function PointMarker({ point, index, selected, constrained, transform, onPointer
       </text>
       {constrained && (
         <g
-          transform={`translate(${x - LABEL_OFFSET - 14}, ${y - LABEL_OFFSET - 10})`}
+          transform={`translate(${x + 4}, ${y - LABEL_OFFSET - 5})`}
           style={{ pointerEvents: 'none' }}
         >
           <Link size={9} color="var(--signal-ink)" strokeWidth={1.75} />
