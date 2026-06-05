@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback, useEffect } from 'react'
+import { Hand } from 'lucide-react'
 import { useAppStore } from '@/store/appStore'
 import { useCanvasTransform } from '@/hooks/useCanvasTransform'
 import { Grid } from './Grid'
@@ -395,6 +396,18 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
           )
         })()}
       </svg>
+
+      {/* Empty canvas hint */}
+      {currentPath.points.length === 0 && !editMode && !simulation.running && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-14 h-14 rounded-full bg-[var(--signal-wash)] border-2 border-[var(--signal-line)] flex items-center justify-center animate-pulse">
+              <Hand size={24} color="var(--signal-ink)" strokeWidth={1.5} />
+            </div>
+            <p className="text-[15px] font-medium text-[var(--ink-3)]">タップして点を打つ</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
