@@ -70,33 +70,35 @@ export function Toolbar() {
         )}
       </div>
 
-      {/* Mode toggle */}
-      <div className="flex items-center rounded-[var(--r-md)] border border-[var(--line)] overflow-hidden mr-1">
-        <Tooltip content={t('toolbar.modeAdd')} side="bottom">
-          <button
-            onClick={() => setEditMode(false)}
-            className={`h-8 w-8 flex items-center justify-center transition-colors ${
-              !editMode
-                ? 'bg-[var(--signal-wash)] text-[var(--signal-ink)]'
-                : 'text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)]'
-            }`}
-          >
-            <Pen size={14} strokeWidth={1.75} />
-          </button>
-        </Tooltip>
-        <Tooltip content={t('toolbar.modeEdit')} side="bottom">
-          <button
-            onClick={() => setEditMode(true)}
-            className={`h-8 w-8 flex items-center justify-center transition-colors ${
-              editMode
-                ? 'bg-[var(--signal-wash)] text-[var(--signal-ink)]'
-                : 'text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)]'
-            }`}
-          >
-            <MousePointer size={14} strokeWidth={1.75} />
-          </button>
-        </Tooltip>
-      </div>
+      {/* Mode toggle (mobile only) */}
+      {isMobile && (
+        <div className="flex items-center rounded-[var(--r-md)] border border-[var(--line)] overflow-hidden mr-1">
+          <Tooltip content={t('toolbar.modeAdd')} side="bottom">
+            <button
+              onClick={() => setEditMode(false)}
+              className={`h-8 w-8 flex items-center justify-center transition-colors ${
+                !editMode
+                  ? 'bg-[var(--signal-wash)] text-[var(--signal-ink)]'
+                  : 'text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)]'
+              }`}
+            >
+              <Pen size={14} strokeWidth={1.75} />
+            </button>
+          </Tooltip>
+          <Tooltip content={t('toolbar.modeEdit')} side="bottom">
+            <button
+              onClick={() => setEditMode(true)}
+              className={`h-8 w-8 flex items-center justify-center transition-colors ${
+                editMode
+                  ? 'bg-[var(--signal-wash)] text-[var(--signal-ink)]'
+                  : 'text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)]'
+              }`}
+            >
+              <MousePointer size={14} strokeWidth={1.75} />
+            </button>
+          </Tooltip>
+        </div>
+      )}
 
       {/* File actions */}
       <Tooltip content={t('toolbar.newPath')} side="bottom">

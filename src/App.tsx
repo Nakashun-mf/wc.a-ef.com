@@ -35,9 +35,13 @@ export function App() {
   useKeyboard()
   useAutoSave()
 
-  // Detect mobile
+  // Detect mobile; reset editMode when switching to desktop
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    const check = () => {
+      const mobile = window.innerWidth < MOBILE_BREAKPOINT
+      setIsMobile(mobile)
+      if (!mobile) useAppStore.getState().setEditMode(false)
+    }
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
