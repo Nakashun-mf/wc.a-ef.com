@@ -58,6 +58,8 @@
     "speedUnit": "mm/s",
     "pause": "Pause",
     "resume": "Resume",
+    "restart": "Restart",
+    "end": "End",
     "skip": "Skip",
     "stop": "Stop",
     "needPoints": "Need at least 2 points"

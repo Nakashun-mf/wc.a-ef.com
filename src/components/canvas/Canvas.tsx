@@ -381,7 +381,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
           />
         )}
 
-        {!simulation.running && simulation.progress < 1 ? (
+        {simulation.progress <= 0 && !simulation.running ? (
           <PathLayer
             path={currentPath}
             selectedPointId={selectedPointId}

@@ -58,6 +58,8 @@
     "speedUnit": "mm/秒",
     "pause": "一時停止",
     "resume": "再開",
+    "restart": "再開",
+    "end": "終了",
     "skip": "スキップ",
     "stop": "停止",
     "needPoints": "ポイントが2つ以上必要です"
