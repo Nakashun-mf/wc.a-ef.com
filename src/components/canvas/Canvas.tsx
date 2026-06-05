@@ -333,7 +333,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
 
 
   return (
-    <div ref={containerRef} className="relative flex-1 overflow-hidden bg-[var(--paper-2)]">
+    <div ref={containerRef} className="relative h-full overflow-hidden bg-[var(--paper-2)]">
       <svg
         ref={svgRef}
         width={size.width}
