@@ -103,7 +103,7 @@ export const useAppStore = create<AppState>()(
     orthoMode: true,
     snapEnabled: true,
     gridVisible: true,
-    gridSizeMm: 5,
+    gridSizeMm: 1,
     isMobile: false,
     selectedPointId: null,
     selectedSegmentId: null,
