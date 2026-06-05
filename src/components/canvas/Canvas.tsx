@@ -435,6 +435,19 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         })()}
       </svg>
 
+      {/* Axis indicator (always visible, fixed to corner) */}
+      <div className="absolute bottom-3 left-3 pointer-events-none opacity-70">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <line x1="12" y1="36" x2="12" y2="10" stroke="var(--ink-4)" strokeWidth="1.5" strokeLinecap="round" />
+          <polyline points="9,14 12,10 15,14" stroke="var(--ink-4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <line x1="12" y1="36" x2="38" y2="36" stroke="var(--ink-4)" strokeWidth="1.5" strokeLinecap="round" />
+          <polyline points="34,33 38,36 34,39" stroke="var(--ink-4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="12" cy="36" r="1.5" fill="var(--ink-4)" />
+          <text x="41" y="40" fontSize="10" fontFamily="var(--font-mono)" fill="var(--ink-3)" textAnchor="middle" style={{ userSelect: 'none' }}>X</text>
+          <text x="12" y="8" fontSize="10" fontFamily="var(--font-mono)" fill="var(--ink-3)" textAnchor="middle" style={{ userSelect: 'none' }}>Y</text>
+        </svg>
+      </div>
+
       {/* Empty canvas hint */}
       {currentPath.points.length === 0 && !editMode && !simulation.running && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
