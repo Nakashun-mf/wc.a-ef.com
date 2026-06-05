@@ -8,6 +8,7 @@ import {
   Grid3X3,
   Pen,
   MousePointer,
+  HelpCircle,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/store/appStore'
@@ -15,6 +16,7 @@ import { Button } from '@/components/ui/Button'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { SettingsPopover } from './SettingsPopover'
 import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog'
+import { HelpModal } from '@/components/dialogs/HelpModal'
 import { useState } from 'react'
 
 // Square-corner ortho icon
@@ -50,6 +52,7 @@ export function Toolbar() {
   const startSimulation = useAppStore(s => s.startSimulation)
 
   const [clearConfirm, setClearConfirm] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
 
   const canSimulate = currentPath.points.length >= 2 && !simulation.running
 
@@ -198,7 +201,15 @@ export function Toolbar() {
         </Button>
       </Tooltip>
 
+      <Tooltip content={t('toolbar.help')} side="bottom">
+        <Button size="icon" variant="ghost" onClick={() => setHelpOpen(true)}>
+          <HelpCircle size={16} strokeWidth={1.75} />
+        </Button>
+      </Tooltip>
+
       <SettingsPopover />
+
+      <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
 
       {clearConfirm && (
         <ConfirmDialog
