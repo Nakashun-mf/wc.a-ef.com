@@ -80,7 +80,7 @@ export function SimulationControls() {
               </Button>
               <Button size="sm" variant="ghost" onClick={stop}>
                 <Square size={14} strokeWidth={1.75} />
-                {t('simulation.stop')}
+                {t('simulation.end')}
               </Button>
             </>
           )}
