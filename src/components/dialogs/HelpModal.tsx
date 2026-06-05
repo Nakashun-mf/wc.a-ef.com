@@ -1,5 +1,5 @@
 import { type ReactElement, useEffect, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, MousePointer, Pen } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MousePointer, Pen, Undo2, Redo2, FilePlus, History } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Dialog } from '@/components/ui/Dialog'
 import { Grid } from '@/components/canvas/Grid'
@@ -99,6 +99,48 @@ function SimDemo() {
   )
 }
 
+function UndoDemo() {
+  return (
+    <div className="w-full rounded-[var(--r-md)] bg-[var(--paper-2)] border border-[var(--line)] py-7 flex items-center justify-center gap-6">
+      <div className="flex flex-col items-center gap-2">
+        <div className="h-10 w-10 flex items-center justify-center rounded-[var(--r-md)] bg-[var(--signal-wash)] border border-[var(--signal-line)]">
+          <Undo2 size={20} strokeWidth={1.75} color="var(--signal-ink)" />
+        </div>
+        <span className="text-[12px] font-semibold text-[var(--signal-ink)]">元に戻す</span>
+      </div>
+      <div className="flex flex-col items-center gap-2">
+        <div className="h-10 w-10 flex items-center justify-center rounded-[var(--r-md)] bg-[var(--surface-2)] border border-[var(--line)]">
+          <Redo2 size={20} strokeWidth={1.75} color="var(--ink-3)" />
+        </div>
+        <span className="text-[12px] font-semibold text-[var(--ink-3)]">やり直す</span>
+      </div>
+    </div>
+  )
+}
+
+function HistoryDemo() {
+  const ROUTES = ['2025-06-01  加工経路A', '2025-06-03  加工経路B', '2025-06-05  加工経路C']
+  return (
+    <div className="w-full rounded-[var(--r-md)] bg-[var(--paper-2)] border border-[var(--line)] overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--line)] bg-[var(--surface)]">
+        <FilePlus size={13} strokeWidth={1.75} color="var(--ink-3)" />
+        <span className="text-[12px] font-medium text-[var(--ink-3)]">新規作成</span>
+        <div className="flex-1" />
+        <History size={13} strokeWidth={1.75} color="var(--ink-3)" />
+        <span className="text-[12px] font-medium text-[var(--ink-3)]">履歴</span>
+      </div>
+      <div className="flex flex-col divide-y divide-[var(--line)]">
+        {ROUTES.map((name, i) => (
+          <div key={i} className={`flex items-center gap-2 px-3 py-2 ${i === 0 ? 'bg-[var(--signal-wash)]' : ''}`}>
+            <div className="w-1.5 h-1.5 rounded-full bg-[var(--ink-4)] flex-shrink-0" />
+            <span className={`text-[12px] ${i === 0 ? 'font-semibold text-[var(--signal-ink)]' : 'text-[var(--ink-3)]'}`}>{name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function EditModeDemo() {
   return (
     <div className="w-full rounded-[var(--r-md)] bg-[var(--paper-2)] border border-[var(--line)] py-6 flex items-center justify-center gap-8">
@@ -154,6 +196,16 @@ const ALL_STEPS: HelpStep[] = [
   {
     titleKey: 'help.step5_title',
     descKey: 'help.step5_desc',
+    Demo: UndoDemo,
+  },
+  {
+    titleKey: 'help.step6_title',
+    descKey: 'help.step6_desc',
+    Demo: HistoryDemo,
+  },
+  {
+    titleKey: 'help.step7_title',
+    descKey: 'help.step7_desc',
     mobileOnly: true,
     Demo: EditModeDemo,
   },

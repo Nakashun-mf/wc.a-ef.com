@@ -81,7 +81,8 @@
     "step2": "Edit coordinates directly in the list",
     "step3": "Ortho mode creates right-angle routes automatically",
     "step4": "Use simulation to preview the machining route",
-    "close": "Get started"
+    "close": "Get started",
+    "helpLink": "See detailed instructions"
   },
   "help": {
     "title": "How to use",
@@ -95,8 +96,12 @@
     "step3_desc": "Tap a point to select it; drag to move it. Long-press to open a coordinate editor.",
     "step4_title": "Simulation",
     "step4_desc": "With 2 or more points, start the simulation to preview the wire route in real time.",
-    "step5_title": "Add / Edit mode",
-    "step5_desc": "Add mode places points on tap. Edit mode lets you pan the canvas by dragging. Switch from the toolbar."
+    "step5_title": "Made a mistake?",
+    "step5_desc": "Tap Undo to reverse the last action. You can undo as many times as needed. Redo restores what you undid.",
+    "step6_title": "Save & recall routes",
+    "step6_desc": "Tap New to save the current route and start fresh. Any past route can be recalled from the history list on the right.",
+    "step7_title": "Add / Edit mode",
+    "step7_desc": "Add mode places points on tap. Edit mode lets you pan the canvas by dragging. Switch from the toolbar."
   },
   "errors": {
     "invalidNumber": "Please enter a valid number",

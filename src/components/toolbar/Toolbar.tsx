@@ -51,8 +51,10 @@ export function Toolbar() {
   const clearCurrentPath = useAppStore(s => s.clearCurrentPath)
   const startSimulation = useAppStore(s => s.startSimulation)
 
+  const helpOpen = useAppStore(s => s.helpOpen)
+  const setHelpOpen = useAppStore(s => s.setHelpOpen)
+
   const [clearConfirm, setClearConfirm] = useState(false)
-  const [helpOpen, setHelpOpen] = useState(false)
 
   const canSimulate = currentPath.points.length >= 2 && !simulation.running
 

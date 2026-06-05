@@ -84,6 +84,10 @@ interface AppState {
   startSimulation: () => void
   stopSimulation: () => void
 
+  // Actions — help modal
+  helpOpen: boolean
+  setHelpOpen: (v: boolean) => void
+
   // Actions — settings
   setTheme: (t: Theme) => void
   setLanguage: (l: Language) => void
@@ -115,6 +119,9 @@ export const useAppStore = create<AppState>()(
     },
     theme: 'system',
     language: 'ja',
+    helpOpen: false,
+
+    setHelpOpen(v) { set({ helpOpen: v }) },
 
     _pushUndo() {
       const { currentPath, undoStack } = get()
