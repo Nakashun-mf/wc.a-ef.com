@@ -7,6 +7,8 @@
     "clear": "クリア",
     "undo": "元に戻す",
     "redo": "やり直す",
+    "modeAdd": "追加",
+    "modeEdit": "編集",
     "orthoMode": "直交モード",
     "snap": "スナップ",
     "grid": "グリッド",

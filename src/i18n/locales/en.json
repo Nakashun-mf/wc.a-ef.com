@@ -7,6 +7,8 @@
     "clear": "Clear",
     "undo": "Undo",
     "redo": "Redo",
+    "modeAdd": "Add",
+    "modeEdit": "Edit",
     "orthoMode": "Ortho",
     "snap": "Snap",
     "grid": "Grid",
