@@ -48,6 +48,8 @@
     "deletePointDesc": "This action can be undone.",
     "clearPath": "Clear the current route?",
     "clearPathDesc": "This action cannot be undone.",
+    "releaseConstraint": "Release the fixed constraint?",
+    "releaseConstraintDesc": "This action can be undone.",
     "deleteHistory": "Delete this history entry?",
     "deleteHistoryDesc": "This action cannot be undone.",
     "yes": "Yes",

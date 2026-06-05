@@ -55,6 +55,7 @@ interface AppState {
   dragPoint: (pointId: string, newX: number, newY: number) => void
   deletePoint: (pointId: string) => void
   releaseConstraint: (segmentId: string) => void
+  releaseConstraintsByPoint: (pointId: string) => void
 
   // Actions — history
   newPathAction: () => Promise<void>
@@ -181,6 +182,19 @@ export const useAppStore = create<AppState>()(
       const { currentPath, _pushUndo } = get()
       _pushUndo()
       const updated = releaseSegmentConstraint(currentPath, segmentId)
+      set({ currentPath: { ...updated, updatedAt: Date.now() } })
+      get()._saveCurrentPath()
+    },
+
+    releaseConstraintsByPoint(pointId) {
+      const { currentPath, _pushUndo } = get()
+      const segIds = currentPath.segments
+        .filter(s => s.isConstrained && (s.fromPointId === pointId || s.toPointId === pointId))
+        .map(s => s.id)
+      if (segIds.length === 0) return
+      _pushUndo()
+      let updated = currentPath
+      for (const id of segIds) updated = releaseSegmentConstraint(updated, id)
       set({ currentPath: { ...updated, updatedAt: Date.now() } })
       get()._saveCurrentPath()
     },

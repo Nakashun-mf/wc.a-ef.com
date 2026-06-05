@@ -48,6 +48,8 @@
     "deletePointDesc": "この操作は元に戻すことができます。",
     "clearPath": "今の経路をクリアしますか？",
     "clearPathDesc": "この操作は元に戻せません。",
+    "releaseConstraint": "固定を外しますか？",
+    "releaseConstraintDesc": "この操作は元に戻すことができます。",
     "deleteHistory": "この履歴を削除しますか？",
     "deleteHistoryDesc": "この操作は元に戻せません。",
     "yes": "はい",
