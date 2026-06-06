@@ -192,7 +192,6 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
         }
       }
     },
-<<<<<<< HEAD
     [panStart, panMove, canvasToWorld, storeDragPoint, storeDragSegment, clearLongPress, transform.scale]
   )
 
