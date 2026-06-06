@@ -19,7 +19,7 @@
   "sidebar": {
     "currentPath": "Current Route",
     "history": "History",
-    "noPoints": "Tap the canvas to place points",
+    "noPoints": "Click or tap the canvas to place points",
     "noHistory": "No saved history"
   },
   "coordinates": {
@@ -87,7 +87,7 @@
     "skip": "Skip",
     "helpLink": "See detailed instructions",
     "page1": {
-      "title": "Tap the canvas to place points",
+      "title": "Click or tap the canvas to place points",
       "body": "Click or tap the canvas to add points. Points connect in sequence to form the wire EDM machining route."
     },
     "page2": {
@@ -112,7 +112,7 @@
     "next": "Next",
     "close": "Close",
     "step1_title": "Add points",
-    "step1_desc": "Tap anywhere on the canvas to place a point. Points connect to form a route.",
+    "step1_desc": "Click or tap the canvas to place a point. Points connect to form a route.",
     "step2_title": "Create an ortho route",
     "step2_desc": "With Ortho mode on, lines snap to horizontal or vertical. Blue = horizontal, green = vertical.",
     "step3_title": "Move & edit points",
@@ -128,6 +128,6 @@
   },
   "errors": {
     "invalidNumber": "Please enter a valid number",
-    "loadFailed": "Failed to load data"
+    "loadFailed": "Failed to load data. Please reload the page."
   }
 }

@@ -19,7 +19,7 @@
   "sidebar": {
     "currentPath": "今の経路",
     "history": "履歴",
-    "noPoints": "メインエリアをタップして点を打ちましょう",
+    "noPoints": "メインエリアをクリック（またはタップ）して点を打ちましょう",
     "noHistory": "保存された履歴はありません"
   },
   "coordinates": {
@@ -45,11 +45,11 @@
   },
   "confirm": {
     "deletePoint": "この点を削除しますか？",
-    "deletePointDesc": "この操作は元に戻すことができます。",
+    "deletePointDesc": "この操作は元に戻せます。",
     "clearPath": "今の経路をクリアしますか？",
     "clearPathDesc": "この操作は元に戻せません。",
     "releaseConstraint": "固定を外しますか？",
-    "releaseConstraintDesc": "この操作は元に戻すことができます。",
+    "releaseConstraintDesc": "この操作は元に戻せます。",
     "deleteHistory": "この履歴を削除しますか？",
     "deleteHistoryDesc": "この操作は元に戻せません。",
     "yes": "はい",
@@ -128,6 +128,6 @@
   },
   "errors": {
     "invalidNumber": "有効な数値を入力してください",
-    "loadFailed": "データの読み込みに失敗しました"
+    "loadFailed": "データの読み込みに失敗しました。ページを再読み込みしてください。"
   }
 }
