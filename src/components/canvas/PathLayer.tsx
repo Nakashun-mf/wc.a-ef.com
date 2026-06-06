@@ -167,6 +167,7 @@ function SegmentLine({ seg, from, to, selected, transform, onClick, onPointerDow
   return (
     <g
       data-canvas-interactive="true"
+      style={{ cursor: 'grab' }}
       onClick={e => { e.stopPropagation(); onClick() }}
       onPointerDown={e => { e.stopPropagation(); onPointerDown(e) }}
       onPointerUp={e => { e.stopPropagation(); onPointerUp(e) }}
@@ -177,7 +178,6 @@ function SegmentLine({ seg, from, to, selected, transform, onClick, onPointerDow
         x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
         stroke="transparent"
         strokeWidth={16}
-        style={{ cursor: 'pointer' }}
       />
       <line
         x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}

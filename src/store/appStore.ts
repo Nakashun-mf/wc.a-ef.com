@@ -5,6 +5,7 @@ import {
   addPoint,
   editCoordinate,
   dragPoint,
+  dragSegment,
   deletePoint,
   renamePath,
 } from '@/domain/path'
@@ -54,6 +55,7 @@ interface AppState {
   addPoint: (rawMmX: number, rawMmY: number) => void
   editCoordinate: (pointId: string, axis: Axis, value: number) => void
   dragPoint: (pointId: string, newX: number, newY: number) => void
+  dragSegment: (fromPointId: string, newFromX: number, newFromY: number, toPointId: string, newToX: number, newToY: number) => void
   deletePoint: (pointId: string) => void
   releaseConstraint: (segmentId: string) => void
   releaseConstraintsByPoint: (pointId: string) => void
@@ -167,6 +169,12 @@ export const useAppStore = create<AppState>()(
     dragPoint(pointId, newX, newY) {
       const { currentPath } = get()
       const updated = dragPoint(currentPath, pointId, newX, newY)
+      set({ currentPath: { ...updated, updatedAt: Date.now() } })
+    },
+
+    dragSegment(fromPointId, newFromX, newFromY, toPointId, newToX, newToY) {
+      const { currentPath } = get()
+      const updated = dragSegment(currentPath, fromPointId, newFromX, newFromY, toPointId, newToX, newToY)
       set({ currentPath: { ...updated, updatedAt: Date.now() } })
     },
 

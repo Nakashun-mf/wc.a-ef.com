@@ -34,14 +34,17 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   const selectPoint = useAppStore(s => s.selectPoint)
   const selectSegment = useAppStore(s => s.selectSegment)
   const storeDragPoint = useAppStore(s => s.dragPoint)
+  const storeDragSegment = useAppStore(s => s.dragSegment)
 
   const { transform, zoom, panStart, panMove, panEnd, reset, canvasToWorld, worldToCanvas } =
     useCanvasTransform(INITIAL_SCALE)
 
   // Track drag state
-  const dragState = useRef<{
+  const dragState = useRef<(
+    | { kind: 'point'; pointId: string }
+    | { kind: 'segment'; segmentId: string; fromPointId: string; toPointId: string; initialFromX: number; initialFromY: number; initialToX: number; initialToY: number }
+  ) & {
     active: boolean
-    pointId: string
     startX: number
     startY: number
     moved: boolean
@@ -173,13 +176,24 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
           clearLongPress()
         }
         if (dragState.current.moved) {
-          const rect = svgRef.current!.getBoundingClientRect()
-          const { x: mmX, y: mmY } = canvasToWorld(e.clientX - rect.left, e.clientY - rect.top)
-          storeDragPoint(dragState.current.pointId, mmX, mmY)
+          if (dragState.current.kind === 'segment') {
+            const dx_mm = dx / transform.scale
+            const dy_mm = -dy / transform.scale
+            const s = dragState.current
+            storeDragSegment(
+              s.fromPointId, s.initialFromX + dx_mm, s.initialFromY + dy_mm,
+              s.toPointId, s.initialToX + dx_mm, s.initialToY + dy_mm,
+            )
+          } else {
+            const rect = svgRef.current!.getBoundingClientRect()
+            const { x: mmX, y: mmY } = canvasToWorld(e.clientX - rect.left, e.clientY - rect.top)
+            storeDragPoint(dragState.current.pointId, mmX, mmY)
+          }
         }
       }
     },
-    [panStart, panMove, canvasToWorld, storeDragPoint, clearLongPress]
+<<<<<<< HEAD
+    [panStart, panMove, canvasToWorld, storeDragPoint, storeDragSegment, clearLongPress, transform.scale]
   )
 
   const handleSvgPointerUp = useCallback(
@@ -243,10 +257,40 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
 
   // ── Point drag start ──────────────────────────────────────────────────────
 
+  const handleSegmentPointerDown = useCallback(
+    (segmentId: string, e: React.PointerEvent) => {
+      if (e.button !== 0) return
+      const seg = currentPath.segments.find(s => s.id === segmentId)
+      if (!seg) return
+      const fromPoint = currentPath.points.find(p => p.id === seg.fromPointId)
+      const toPoint = currentPath.points.find(p => p.id === seg.toPointId)
+      if (!fromPoint || !toPoint) return
+      dragState.current = {
+        kind: 'segment',
+        active: true,
+        segmentId,
+        fromPointId: seg.fromPointId,
+        toPointId: seg.toPointId,
+        startX: e.clientX,
+        startY: e.clientY,
+        initialFromX: fromPoint.x,
+        initialFromY: fromPoint.y,
+        initialToX: toPoint.x,
+        initialToY: toPoint.y,
+        moved: false,
+      }
+    },
+    [currentPath.points, currentPath.segments]
+  )
+
+  const handleSegmentPointerUp = useCallback((_e: React.PointerEvent) => {}, [])
+  const handleSegmentContextMenu = useCallback((_segmentId: string, _e: React.MouseEvent) => {}, [])
+
   const handlePointDragStart = useCallback(
     (pointId: string, e: React.PointerEvent) => {
       e.stopPropagation()
       dragState.current = {
+        kind: 'point',
         active: true,
         pointId,
         startX: e.clientX,
@@ -393,9 +437,9 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
             onPointClick={handlePointClick}
             onSegmentClick={handleSegmentClick}
             onPointDragStart={handlePointDragStart}
-            onSegmentPointerDown={() => {}}
-            onSegmentPointerUp={() => {}}
-            onSegmentContextMenu={() => {}}
+            onSegmentPointerDown={handleSegmentPointerDown}
+            onSegmentPointerUp={handleSegmentPointerUp}
+            onSegmentContextMenu={handleSegmentContextMenu}
           />
         ) : (
           <>
