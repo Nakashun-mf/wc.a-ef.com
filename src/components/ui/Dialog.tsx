@@ -7,11 +7,12 @@ interface DialogProps {
   open: boolean
   onOpenChange: (v: boolean) => void
   title: string
+  badge?: string
   children: ReactNode
   className?: string
 }
 
-export function Dialog({ open, onOpenChange, title, children, className }: DialogProps) {
+export function Dialog({ open, onOpenChange, title, badge, children, className }: DialogProps) {
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Portal>
@@ -28,9 +29,16 @@ export function Dialog({ open, onOpenChange, title, children, className }: Dialo
           )}
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--line)]">
-            <RadixDialog.Title className="text-[15px] font-semibold text-[var(--ink)]">
-              {title}
-            </RadixDialog.Title>
+            <div className="flex items-center gap-2">
+              <RadixDialog.Title className="text-[15px] font-semibold text-[var(--ink)]">
+                {title}
+              </RadixDialog.Title>
+              {badge && (
+                <span className="text-[11px] font-mono text-[var(--ink-3)] bg-[var(--surface-2)] px-1.5 py-0.5 rounded-[var(--r-sm)] leading-none">
+                  {badge}
+                </span>
+              )}
+            </div>
             <RadixDialog.Close asChild>
               <button className="h-7 w-7 rounded-[var(--r-sm)] flex items-center justify-center text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)] transition-colors">
                 <X size={16} strokeWidth={1.75} />

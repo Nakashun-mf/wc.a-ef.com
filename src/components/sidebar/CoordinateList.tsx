@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Link, Trash2 } from 'lucide-react'
+import { Link, Trash2, Unlink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/store/appStore'
 import { getConstrainedPointIds, roundToDisplay } from '@/domain/utils'
 import { Button } from '@/components/ui/Button'
 import { CoordEditDialog } from '@/components/dialogs/CoordEditDialog'
 import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog'
+import { Tooltip } from '@/components/ui/Tooltip'
 import type { Point } from '@/domain/types'
 
 interface EditState {
@@ -21,9 +22,11 @@ export function CoordinateList() {
   const selectPoint = useAppStore(s => s.selectPoint)
   const editCoordinate = useAppStore(s => s.editCoordinate)
   const deletePoint = useAppStore(s => s.deletePoint)
+  const releaseConstraintsByPoint = useAppStore(s => s.releaseConstraintsByPoint)
 
   const [editDialog, setEditDialog] = useState<{ point: Point } | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [releaseConfirm, setReleaseConfirm] = useState<string | null>(null)
 
   const constrainedIds = getConstrainedPointIds(currentPath)
 
@@ -109,19 +112,36 @@ export function CoordinateList() {
       <div className="px-3 py-3">
         {currentPath.points.map((point, idx) => {
           const isSelected = selectedPointId === point.id
+          const isConstrained = constrainedIds.has(point.id)
           if (!isSelected) return null
           return (
             <div key={point.id} className="rounded-[var(--r-md)] border border-[var(--signal-line)] bg-[var(--signal-wash)] p-3 mt-1">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-mono font-semibold text-[var(--signal-ink)] text-[13px]">P{idx + 1} を編集</span>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-6 w-6"
-                  onClick={() => setDeleteConfirm(point.id)}
-                >
-                  <Trash2 size={13} className="text-[var(--danger)]" strokeWidth={1.75} />
-                </Button>
+                <div className="flex items-center gap-0.5">
+                  {isConstrained && (
+                    <Tooltip content={t('edit.releaseConstraint')} side="left">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-6 w-6"
+                        onClick={() => setReleaseConfirm(point.id)}
+                      >
+                        <Unlink size={12} className="text-[var(--signal-ink)]" strokeWidth={1.75} />
+                      </Button>
+                    </Tooltip>
+                  )}
+                  <Tooltip content={t('edit.deletePoint')} side="left">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-6 w-6"
+                      onClick={() => setDeleteConfirm(point.id)}
+                    >
+                      <Trash2 size={13} className="text-[var(--danger)]" strokeWidth={1.75} />
+                    </Button>
+                  </Tooltip>
+                </div>
               </div>
               <InlineCoordEdit
                 point={point}
@@ -153,6 +173,18 @@ export function CoordinateList() {
             setDeleteConfirm(null)
           }}
           onCancel={() => setDeleteConfirm(null)}
+        />
+      )}
+
+      {releaseConfirm && (
+        <ConfirmDialog
+          title={t('confirm.releaseConstraint')}
+          description={t('confirm.releaseConstraintDesc')}
+          onConfirm={() => {
+            releaseConstraintsByPoint(releaseConfirm)
+            setReleaseConfirm(null)
+          }}
+          onCancel={() => setReleaseConfirm(null)}
         />
       )}
     </div>

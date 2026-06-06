@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Trash2, Unlink } from 'lucide-react'
+import { Trash2, Unlink, ChevronUp, ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
@@ -58,23 +58,47 @@ export function CoordEditDialog({ point, pointIndex, onClose, onDelete }: CoordE
             const setVal = axis === 'x' ? setXVal : setYVal
             const err = axis === 'x' ? xErr : yErr
             const setErr = axis === 'x' ? setXErr : setYErr
+            const step = (dir: 1 | -1) => {
+              const n = parseFloat(val)
+              const next = isNaN(n) ? dir : Math.round((n + dir) * 100) / 100
+              setVal(next.toFixed(2))
+              setErr(false)
+            }
             return (
               <label key={axis}>
                 <span className="block font-mono text-[11px] uppercase tracking-wider text-[var(--ink-3)] mb-1.5">
                   {axis.toUpperCase()} (mm)
                 </span>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={val}
-                  onChange={e => { setVal(e.target.value); setErr(false) }}
-                  onKeyDown={e => e.key === 'Enter' && handleConfirm()}
-                  className={`w-full px-3 py-2 text-[14px] font-mono bg-[var(--surface)] border rounded-[var(--r-md)] text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--signal)] transition-colors ${
-                    err
-                      ? 'border-[var(--danger)] focus:ring-[var(--danger)]'
-                      : 'border-[var(--line-2)] focus:border-[var(--signal)]'
-                  }`}
-                />
+                <div className="flex items-stretch gap-1">
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={val}
+                    onChange={e => { setVal(e.target.value); setErr(false) }}
+                    onKeyDown={e => e.key === 'Enter' && handleConfirm()}
+                    className={`flex-1 min-w-0 px-3 py-2 text-[14px] font-mono bg-[var(--surface)] border rounded-[var(--r-md)] text-[var(--ink)] focus:outline-none focus:ring-2 focus:ring-[var(--signal)] transition-colors ${
+                      err
+                        ? 'border-[var(--danger)] focus:ring-[var(--danger)]'
+                        : 'border-[var(--line-2)] focus:border-[var(--signal)]'
+                    }`}
+                  />
+                  <div className="flex flex-col gap-px">
+                    <button
+                      type="button"
+                      onClick={() => step(1)}
+                      className="flex-1 px-2 flex items-center justify-center rounded-t-[var(--r-md)] border border-[var(--line-2)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] active:bg-[var(--surface-3)] text-[var(--ink-2)] transition-colors"
+                    >
+                      <ChevronUp size={13} strokeWidth={2} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => step(-1)}
+                      className="flex-1 px-2 flex items-center justify-center rounded-b-[var(--r-md)] border border-[var(--line-2)] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] active:bg-[var(--surface-3)] text-[var(--ink-2)] transition-colors"
+                    >
+                      <ChevronDown size={13} strokeWidth={2} />
+                    </button>
+                  </div>
+                </div>
                 {err && (
                   <p className="text-[12px] text-[var(--danger)] mt-1">{t('errors.invalidNumber')}</p>
                 )}

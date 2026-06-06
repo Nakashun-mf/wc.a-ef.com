@@ -6,6 +6,9 @@ import {
   Play,
   Magnet,
   Grid3X3,
+  Pen,
+  MousePointer,
+  HelpCircle,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/store/appStore'
@@ -13,6 +16,7 @@ import { Button } from '@/components/ui/Button'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { SettingsPopover } from './SettingsPopover'
 import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog'
+import { HelpModal } from '@/components/dialogs/HelpModal'
 import { useState } from 'react'
 
 // Square-corner ortho icon
@@ -27,6 +31,7 @@ function OrthoIcon({ size = 16 }: { size?: number }) {
 
 export function Toolbar() {
   const { t } = useTranslation()
+  const editMode = useAppStore(s => s.editMode)
   const orthoMode = useAppStore(s => s.orthoMode)
   const snapEnabled = useAppStore(s => s.snapEnabled)
   const gridVisible = useAppStore(s => s.gridVisible)
@@ -36,6 +41,7 @@ export function Toolbar() {
   const currentPath = useAppStore(s => s.currentPath)
   const simulation = useAppStore(s => s.simulation)
 
+  const setEditMode = useAppStore(s => s.setEditMode)
   const setOrthoMode = useAppStore(s => s.setOrthoMode)
   const setSnapEnabled = useAppStore(s => s.setSnapEnabled)
   const setGridVisible = useAppStore(s => s.setGridVisible)
@@ -44,6 +50,9 @@ export function Toolbar() {
   const newPathAction = useAppStore(s => s.newPathAction)
   const clearCurrentPath = useAppStore(s => s.clearCurrentPath)
   const startSimulation = useAppStore(s => s.startSimulation)
+
+  const helpOpen = useAppStore(s => s.helpOpen)
+  const setHelpOpen = useAppStore(s => s.setHelpOpen)
 
   const [clearConfirm, setClearConfirm] = useState(false)
 
@@ -65,6 +74,36 @@ export function Toolbar() {
           </span>
         )}
       </div>
+
+      {/* Mode toggle (mobile only) */}
+      {isMobile && (
+        <div className="flex items-center rounded-[var(--r-md)] border border-[var(--line)] overflow-hidden mr-1">
+          <Tooltip content={t('toolbar.modeAdd')} side="bottom">
+            <button
+              onClick={() => setEditMode(false)}
+              className={`h-8 w-8 flex items-center justify-center transition-colors ${
+                !editMode
+                  ? 'bg-[var(--signal-wash)] text-[var(--signal-ink)]'
+                  : 'text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)]'
+              }`}
+            >
+              <Pen size={14} strokeWidth={1.75} />
+            </button>
+          </Tooltip>
+          <Tooltip content={t('toolbar.modeEdit')} side="bottom">
+            <button
+              onClick={() => setEditMode(true)}
+              className={`h-8 w-8 flex items-center justify-center transition-colors ${
+                editMode
+                  ? 'bg-[var(--signal-wash)] text-[var(--signal-ink)]'
+                  : 'text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)]'
+              }`}
+            >
+              <MousePointer size={14} strokeWidth={1.75} />
+            </button>
+          </Tooltip>
+        </div>
+      )}
 
       {/* File actions */}
       <Tooltip content={t('toolbar.newPath')} side="bottom">
@@ -164,7 +203,15 @@ export function Toolbar() {
         </Button>
       </Tooltip>
 
+      <Tooltip content={t('toolbar.help')} side="bottom">
+        <Button size="icon" variant="ghost" onClick={() => setHelpOpen(true)}>
+          <HelpCircle size={16} strokeWidth={1.75} />
+        </Button>
+      </Tooltip>
+
       <SettingsPopover />
+
+      <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
 
       {clearConfirm && (
         <ConfirmDialog

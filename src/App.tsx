@@ -14,6 +14,7 @@ import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog'
 import { OnboardingDialog } from '@/components/dialogs/OnboardingDialog'
 import { Button } from '@/components/ui/Button'
 import { TooltipProvider } from '@/components/ui/Tooltip'
+import type { Theme } from '@/domain/types'
 
 const MOBILE_BREAKPOINT = 768
 
@@ -21,7 +22,6 @@ export function App() {
   const { t } = useTranslation()
   const isMobile = useAppStore(s => s.isMobile)
   const setIsMobile = useAppStore(s => s.setIsMobile)
-  const theme = useAppStore(s => s.theme)
   const loadHistory = useAppStore(s => s.loadHistory)
   const currentPath = useAppStore(s => s.currentPath)
   const releaseConstraint = useAppStore(s => s.releaseConstraint)
@@ -35,9 +35,13 @@ export function App() {
   useKeyboard()
   useAutoSave()
 
-  // Detect mobile
+  // Detect mobile; reset editMode when switching to desktop
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    const check = () => {
+      const mobile = window.innerWidth < MOBILE_BREAKPOINT
+      setIsMobile(mobile)
+      if (!mobile) useAppStore.getState().setEditMode(false)
+    }
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
@@ -45,7 +49,7 @@ export function App() {
 
   // Restore theme on mount
   useEffect(() => {
-    const saved = localStorage.getItem('theme') as typeof theme | null
+    const saved = localStorage.getItem('theme') as Theme | null
     if (saved) useAppStore.getState().setTheme(saved)
     loadHistory()
   }, [loadHistory])
@@ -119,8 +123,8 @@ export function App() {
 
         {releaseConfirm && (
           <ConfirmDialog
-            title="拘束を解除しますか？"
-            description="このセグメントの拘束を解除します。"
+            title={t('confirm.releaseConstraint')}
+            description={t('confirm.releaseConstraintDesc')}
             onConfirm={() => {
               releaseConstraint(releaseConfirm)
               setReleaseConfirm(null)

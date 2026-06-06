@@ -32,10 +32,12 @@ interface AppState {
   redoStack: WirePath[]
 
   // Modes
+  editMode: boolean
   orthoMode: boolean
   snapEnabled: boolean
   gridVisible: boolean
   gridSizeMm: number
+  showPointCoords: boolean
   isMobile: boolean
 
   // Selection
@@ -56,6 +58,7 @@ interface AppState {
   dragSegment: (fromPointId: string, newFromX: number, newFromY: number, toPointId: string, newToX: number, newToY: number) => void
   deletePoint: (pointId: string) => void
   releaseConstraint: (segmentId: string) => void
+  releaseConstraintsByPoint: (pointId: string) => void
 
   // Actions — history
   newPathAction: () => Promise<void>
@@ -70,9 +73,11 @@ interface AppState {
   redo: () => void
 
   // Actions — mode
+  setEditMode: (v: boolean) => void
   setOrthoMode: (v: boolean) => void
   setSnapEnabled: (v: boolean) => void
   setGridVisible: (v: boolean) => void
+  setShowPointCoords: (v: boolean) => void
   setIsMobile: (v: boolean) => void
 
   // Actions — selection
@@ -83,6 +88,10 @@ interface AppState {
   setSimulation: (s: Partial<SimulationState>) => void
   startSimulation: () => void
   stopSimulation: () => void
+
+  // Actions — help modal
+  helpOpen: boolean
+  setHelpOpen: (v: boolean) => void
 
   // Actions — settings
   setTheme: (t: Theme) => void
@@ -99,10 +108,12 @@ export const useAppStore = create<AppState>()(
     paths: {},
     undoStack: [],
     redoStack: [],
+    editMode: false,
     orthoMode: true,
     snapEnabled: true,
     gridVisible: true,
-    gridSizeMm: 5,
+    gridSizeMm: 1,
+    showPointCoords: false,
     isMobile: false,
     selectedPointId: null,
     selectedSegmentId: null,
@@ -114,6 +125,9 @@ export const useAppStore = create<AppState>()(
     },
     theme: 'system',
     language: 'ja',
+    helpOpen: false,
+
+    setHelpOpen(v) { set({ helpOpen: v }) },
 
     _pushUndo() {
       const { currentPath, undoStack } = get()
@@ -179,6 +193,19 @@ export const useAppStore = create<AppState>()(
       const { currentPath, _pushUndo } = get()
       _pushUndo()
       const updated = releaseSegmentConstraint(currentPath, segmentId)
+      set({ currentPath: { ...updated, updatedAt: Date.now() } })
+      get()._saveCurrentPath()
+    },
+
+    releaseConstraintsByPoint(pointId) {
+      const { currentPath, _pushUndo } = get()
+      const segIds = currentPath.segments
+        .filter(s => s.isConstrained && (s.fromPointId === pointId || s.toPointId === pointId))
+        .map(s => s.id)
+      if (segIds.length === 0) return
+      _pushUndo()
+      let updated = currentPath
+      for (const id of segIds) updated = releaseSegmentConstraint(updated, id)
       set({ currentPath: { ...updated, updatedAt: Date.now() } })
       get()._saveCurrentPath()
     },
@@ -284,6 +311,10 @@ export const useAppStore = create<AppState>()(
       })
     },
 
+    setEditMode(v) {
+      set({ editMode: v })
+    },
+
     setOrthoMode(v) {
       set({ orthoMode: v, snapEnabled: v })
     },
@@ -294,6 +325,10 @@ export const useAppStore = create<AppState>()(
 
     setGridVisible(v) {
       set({ gridVisible: v })
+    },
+
+    setShowPointCoords(v) {
+      set({ showPointCoords: v })
     },
 
     setIsMobile(v) {
