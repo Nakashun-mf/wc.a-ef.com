@@ -6,6 +6,7 @@ import {
   Play,
   Magnet,
   Grid3X3,
+  HelpCircle,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/store/appStore'
@@ -25,7 +26,11 @@ function OrthoIcon({ size = 16 }: { size?: number }) {
   )
 }
 
-export function Toolbar() {
+interface ToolbarProps {
+  onHelpOpen: () => void
+}
+
+export function Toolbar({ onHelpOpen }: ToolbarProps) {
   const { t } = useTranslation()
   const orthoMode = useAppStore(s => s.orthoMode)
   const snapEnabled = useAppStore(s => s.snapEnabled)
@@ -161,6 +166,12 @@ export function Toolbar() {
         >
           <Play size={14} strokeWidth={1.75} />
           {!isMobile && t('toolbar.simulate')}
+        </Button>
+      </Tooltip>
+
+      <Tooltip content={t('toolbar.help')} side="bottom">
+        <Button size="icon" variant="ghost" onClick={onHelpOpen}>
+          <HelpCircle size={16} strokeWidth={1.75} />
         </Button>
       </Tooltip>
 

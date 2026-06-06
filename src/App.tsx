@@ -11,7 +11,7 @@ import { MobileDrawer } from '@/components/sidebar/MobileDrawer'
 import { SimulationControls } from '@/components/simulation/SimulationControls'
 import { CoordEditDialog } from '@/components/dialogs/CoordEditDialog'
 import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog'
-import { OnboardingDialog } from '@/components/dialogs/OnboardingDialog'
+import { OnboardingDialog, ONBOARDING_KEY } from '@/components/dialogs/OnboardingDialog'
 import { Button } from '@/components/ui/Button'
 import { TooltipProvider } from '@/components/ui/Tooltip'
 
@@ -28,6 +28,7 @@ export function App() {
   const deletePoint = useAppStore(s => s.deletePoint)
 
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(() => !localStorage.getItem(ONBOARDING_KEY))
   const [longPressPoint, setLongPressPoint] = useState<string | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [releaseConfirm, setReleaseConfirm] = useState<string | null>(null)
@@ -60,7 +61,7 @@ export function App() {
   return (
     <TooltipProvider>
       <div className="flex flex-col h-full">
-        <Toolbar />
+        <Toolbar onHelpOpen={() => setHelpOpen(true)} />
 
         <div className="flex flex-1 overflow-hidden relative">
           {/* Mobile menu button overlay */}
@@ -119,8 +120,8 @@ export function App() {
 
         {releaseConfirm && (
           <ConfirmDialog
-            title="拘束を解除しますか？"
-            description="このセグメントの拘束を解除します。"
+            title={t('confirm.releaseConstraint')}
+            description={t('confirm.releaseConstraintDesc')}
             onConfirm={() => {
               releaseConstraint(releaseConfirm)
               setReleaseConfirm(null)
@@ -129,7 +130,7 @@ export function App() {
           />
         )}
 
-        <OnboardingDialog />
+        <OnboardingDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
       </div>
     </TooltipProvider>
   )
