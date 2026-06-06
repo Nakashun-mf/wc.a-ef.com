@@ -287,6 +287,15 @@ export function HelpModal({ open, onClose }: HelpModalProps) {
             {!isLast && <ChevronRight size={15} strokeWidth={1.75} />}
           </button>
         </div>
+
+        {/* Manual link */}
+        <button
+          onClick={() => { onClose(); window.location.hash = '#/manual' }}
+          className="flex items-center justify-center gap-1 text-[12px] text-[var(--ink-3)] hover:text-[var(--signal-ink)] transition-colors pt-1"
+        >
+          {t('onboarding.helpLink')}
+          <ChevronRight size={13} strokeWidth={1.75} />
+        </button>
       </div>
     </Dialog>
   )

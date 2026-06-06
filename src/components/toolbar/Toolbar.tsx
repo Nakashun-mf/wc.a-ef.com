@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/Button'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { SettingsPopover } from './SettingsPopover'
 import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog'
+import { HelpModal } from '@/components/dialogs/HelpModal'
 import { useState } from 'react'
 
 // Square-corner ortho icon
@@ -49,6 +50,9 @@ export function Toolbar() {
   const newPathAction = useAppStore(s => s.newPathAction)
   const clearCurrentPath = useAppStore(s => s.clearCurrentPath)
   const startSimulation = useAppStore(s => s.startSimulation)
+
+  const helpOpen = useAppStore(s => s.helpOpen)
+  const setHelpOpen = useAppStore(s => s.setHelpOpen)
 
   const [clearConfirm, setClearConfirm] = useState(false)
 
@@ -200,12 +204,14 @@ export function Toolbar() {
       </Tooltip>
 
       <Tooltip content={t('toolbar.help')} side="bottom">
-        <Button size="icon" variant="ghost" onClick={() => { window.location.hash = '#/manual' }}>
+        <Button size="icon" variant="ghost" onClick={() => setHelpOpen(true)}>
           <HelpCircle size={16} strokeWidth={1.75} />
         </Button>
       </Tooltip>
 
       <SettingsPopover />
+
+      <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
 
       {clearConfirm && (
         <ConfirmDialog
