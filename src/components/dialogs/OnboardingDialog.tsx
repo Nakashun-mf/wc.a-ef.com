@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MousePointer, List, Play } from 'lucide-react'
+import { MousePointer, List, Play, RotateCcw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
@@ -28,6 +28,7 @@ export function OnboardingDialog() {
     { icon: <List size={15} strokeWidth={1.75} />, text: t('onboarding.step2') },
     { icon: <OrthoStepIcon />, text: t('onboarding.step3') },
     { icon: <Play size={15} strokeWidth={1.75} />, text: t('onboarding.step4') },
+    { icon: <RotateCcw size={15} strokeWidth={1.75} />, text: t('onboarding.step5') },
   ]
 
   return (
