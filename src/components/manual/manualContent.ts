@@ -99,20 +99,24 @@ export const ENTRIES: ManualEntry[] = [
     titleJa: '追加モードに切り替える（スマホ）',
     titleEn: 'Switch to Add mode (mobile)',
     bodyJa: [
-      { type: 'p', text: '追加モードは、キャンバスをタップして点を追加するモードです。アプリ起動時のデフォルトは追加モードになっています。スマートフォン・タブレットではモード切り替えが必要な場面があります。' },
+      { type: 'p', text: 'スマホ・タブレットには「追加モード」と「編集モード」の2つがあり、モードによってタッチ操作の意味が変わります。アプリ起動時のデフォルトは追加モードです。' },
+      { type: 'p', text: '追加モード中の操作：タップ → 点を追加　／　2本指ピンチ → ズーム　／　2本指ドラッグ → パン（画面移動）' },
+      { type: 'p', text: '編集モード中の操作：タップ → 点・線を選択（点は追加されない）　／　1本指ドラッグ → パン（画面移動）　／　点をドラッグ → 点を移動' },
       { type: 'steps', items: [
-        'ツールバー左側の「追加」アイコン（ペンマーク）をタップする',
-        'ボタンが青くハイライトされれば追加モードになっています',
+        'ツールバー左の「追加」アイコン（ペンマーク）をタップ',
+        'ボタンが青くハイライトされれば追加モードです',
       ]},
-      { type: 'tip', text: 'PCでは常に追加モードと同じように動作するため、モード切り替えは不要です。' },
+      { type: 'tip', text: 'PCでは追加モード固定で、ドラッグは常にパンとして動作するため、モード切り替えは不要です。' },
     ],
     bodyEn: [
-      { type: 'p', text: 'Add mode lets you tap the canvas to place new points. The app starts in Add mode by default. On smartphones and tablets, you may need to switch modes manually.' },
+      { type: 'p', text: 'On smartphones and tablets there are two modes — Add and Edit — and the meaning of touch gestures changes depending on which is active. The app starts in Add mode.' },
+      { type: 'p', text: 'Add mode gestures: Tap → place a new point  /  Two-finger pinch → zoom  /  Two-finger drag → pan the canvas' },
+      { type: 'p', text: 'Edit mode gestures: Tap → select a point or segment (no new point placed)  /  One-finger drag → pan the canvas  /  Drag a point → move the point' },
       { type: 'steps', items: [
         'Tap the Add icon (pen mark) on the left side of the toolbar',
         'The button turns blue when Add mode is active',
       ]},
-      { type: 'tip', text: 'On PC, Add mode behavior is always active and no mode switch is needed.' },
+      { type: 'tip', text: 'On PC, the app is always in Add mode and one-finger drag always pans — no mode switch is needed.' },
     ],
   },
   {
@@ -485,22 +489,24 @@ export const ENTRIES: ManualEntry[] = [
     titleJa: '編集モードに切り替える（スマホ）',
     titleEn: 'Switch to Edit mode (mobile)',
     bodyJa: [
-      { type: 'p', text: '編集モードはスマートフォン・タブレット専用のモードです。編集モード中はキャンバスをドラッグすると画面のパン（移動）が行われ、誤って点が追加されることがありません。' },
+      { type: 'p', text: '編集モードはスマホ・タブレット専用のモードです。追加モードでは1本指タップで点が追加されてしまうため、画面移動や点の選択・移動だけを行いたい場面で切り替えます。' },
+      { type: 'p', text: '編集モード中の操作：タップ → 点・線を選択（点は追加されない）　／　1本指ドラッグ → パン（画面移動）　／　点をドラッグ → 点を移動' },
       { type: 'steps', items: [
-        'ツールバー左側の「編集」アイコン（矢印マーク）をタップする',
-        'ボタンが青くハイライトされれば編集モードになっています',
-        '追加モードに戻すには「追加」アイコン（ペンマーク）をタップする',
+        'ツールバー左の「編集」アイコン（矢印マーク）をタップ',
+        'ボタンが青くハイライトされれば編集モードです',
+        '点の追加を再開したいときは「追加」アイコン（ペンマーク）で追加モードに戻す',
       ]},
-      { type: 'tip', text: 'PCでは常にドラッグでパン操作ができるため、モード切り替えは不要です。' },
+      { type: 'tip', text: 'PCでは1本指ドラッグが常にパンとして動作するため、このモードは存在しません。' },
     ],
     bodyEn: [
-      { type: 'p', text: 'Edit mode is for smartphones and tablets only. While in Edit mode, dragging the canvas pans the view instead of placing a new point.' },
+      { type: 'p', text: 'Edit mode is exclusive to smartphones and tablets. In Add mode every tap places a new point, so switch to Edit mode when you want to pan, select, or reposition points without accidentally adding new ones.' },
+      { type: 'p', text: 'Edit mode gestures: Tap → select a point or segment (no new point placed)  /  One-finger drag → pan the canvas  /  Drag a point → move the point' },
       { type: 'steps', items: [
         'Tap the Edit icon (arrow/cursor mark) on the left side of the toolbar',
         'The button turns blue when Edit mode is active',
-        'To return to Add mode, tap the Add (pen) icon',
+        'To start adding points again, tap the Add (pen) icon to return to Add mode',
       ]},
-      { type: 'tip', text: 'On PC, dragging always pans — no mode switch needed.' },
+      { type: 'tip', text: 'On PC, one-finger drag always pans, so this mode does not exist.' },
     ],
   },
   {
