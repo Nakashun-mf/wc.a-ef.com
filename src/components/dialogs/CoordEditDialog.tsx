@@ -108,10 +108,15 @@ export function CoordEditDialog({ point, pointIndex, onClose, onDelete }: CoordE
         </div>
 
         {isConstrained && constrainedSegments.length > 0 && (
-          <div>
-            <p className="text-[12px] text-[var(--ink-3)] mb-2">
-              {t('edit.releaseConstraint')}
-            </p>
+          <div className="rounded-[var(--r-md)] border border-[var(--warn-line)] bg-[var(--warn-wash)] px-3 py-2.5 space-y-2">
+            <div>
+              <p className="text-[12px] font-medium text-[var(--warn)]">
+                {t('edit.constraintLinked')}
+              </p>
+              <p className="text-[11px] text-[var(--ink-3)] mt-0.5">
+                {t('edit.constraintNote')}
+              </p>
+            </div>
             <div className="flex flex-wrap gap-1.5">
               {constrainedSegments.map(seg => {
                 const otherPointId = seg.fromPointId === point.id ? seg.toPointId : seg.fromPointId
@@ -121,14 +126,14 @@ export function CoordEditDialog({ point, pointIndex, onClose, onDelete }: CoordE
                     key={seg.id}
                     size="sm"
                     variant="ghost"
-                    className="text-[var(--warn)] border border-[var(--warn-line)] bg-[var(--warn-wash)]"
+                    className="text-[var(--warn)] border border-[var(--warn-line)] bg-[var(--surface)]"
                     onClick={() => {
                       releaseConstraint(seg.id)
                       onClose()
                     }}
                   >
                     <Unlink size={12} strokeWidth={1.75} />
-                    {seg.orientation === 'horizontal' ? 'H' : 'V'} → P{otherIdx + 1}
+                    {t('edit.releaseWith', { point: `P${otherIdx + 1}` })}
                   </Button>
                 )
               })}

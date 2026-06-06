@@ -26,7 +26,8 @@
     "point": "点",
     "x": "X",
     "y": "Y",
-    "constrained": "固定"
+    "constrained": "固定",
+    "fixedTooltip": "固定中（他の点と連動）"
   },
   "history": {
     "open": "開く",
@@ -41,7 +42,11 @@
     "confirm": "確定",
     "cancel": "キャンセル",
     "deletePoint": "この点を削除",
-    "releaseConstraint": "拘束を解除"
+    "releaseConstraint": "固定を外す",
+    "constraintLinked": "他の点と固定されています",
+    "constraintNote": "座標を変えると連動先にも自動で反映されます",
+    "releaseWith": "{{point}} との固定を外す",
+    "linkedPoints": "{{axis}} を変えると {{points}} にも反映されます"
   },
   "confirm": {
     "deletePoint": "この点を削除しますか？",
