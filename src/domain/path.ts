@@ -151,6 +151,22 @@ export function dragPoint(
 }
 
 /**
+ * Drag a segment by moving both endpoints with constraint propagation.
+ */
+export function dragSegment(
+  path: WirePath,
+  fromPointId: string,
+  newFromX: number,
+  newFromY: number,
+  toPointId: string,
+  newToX: number,
+  newToY: number
+): WirePath {
+  const after1 = applyConstraintPropagationXY(path, fromPointId, newFromX, newFromY)
+  return applyConstraintPropagationXY(after1, toPointId, newToX, newToY)
+}
+
+/**
  * Rename a path.
  */
 export function renamePath(path: WirePath, name: string): WirePath {

@@ -29,14 +29,17 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   const selectPoint = useAppStore(s => s.selectPoint)
   const selectSegment = useAppStore(s => s.selectSegment)
   const storeDragPoint = useAppStore(s => s.dragPoint)
+  const storeDragSegment = useAppStore(s => s.dragSegment)
 
   const { transform, zoom, panStart, panMove, panEnd, reset, canvasToWorld, worldToCanvas } =
     useCanvasTransform(INITIAL_SCALE)
 
   // Track drag state
-  const dragState = useRef<{
+  const dragState = useRef<(
+    | { kind: 'point'; pointId: string }
+    | { kind: 'segment'; segmentId: string; fromPointId: string; toPointId: string; initialFromX: number; initialFromY: number; initialToX: number; initialToY: number }
+  ) & {
     active: boolean
-    pointId: string
     startX: number
     startY: number
     moved: boolean
@@ -113,13 +116,23 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
           clearLongPress()
         }
         if (dragState.current.moved) {
-          const rect = svgRef.current!.getBoundingClientRect()
-          const { x: mmX, y: mmY } = canvasToWorld(e.clientX - rect.left, e.clientY - rect.top)
-          storeDragPoint(dragState.current.pointId, mmX, mmY)
+          if (dragState.current.kind === 'segment') {
+            const dx_mm = dx / transform.scale
+            const dy_mm = -dy / transform.scale
+            const s = dragState.current
+            storeDragSegment(
+              s.fromPointId, s.initialFromX + dx_mm, s.initialFromY + dy_mm,
+              s.toPointId, s.initialToX + dx_mm, s.initialToY + dy_mm,
+            )
+          } else {
+            const rect = svgRef.current!.getBoundingClientRect()
+            const { x: mmX, y: mmY } = canvasToWorld(e.clientX - rect.left, e.clientY - rect.top)
+            storeDragPoint(dragState.current.pointId, mmX, mmY)
+          }
         }
       }
     },
-    [panMove, canvasToWorld, storeDragPoint, clearLongPress]
+    [panMove, canvasToWorld, storeDragPoint, storeDragSegment, clearLongPress, transform.scale]
   )
 
   const handleSvgPointerUp = useCallback(
@@ -132,9 +145,10 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
 
       if (dragState.current?.active) {
         const wasDrag = dragState.current.moved
+        const wasSegment = dragState.current.kind === 'segment'
         dragState.current = null
         clearLongPress()
-        if (wasDrag) return
+        if (wasDrag || wasSegment) return
       }
 
       // Add new point on tap/click
@@ -160,10 +174,36 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
 
   // ── Point drag start ──────────────────────────────────────────────────────
 
+  const handleSegmentDragStart = useCallback(
+    (segmentId: string, fromPointId: string, toPointId: string, e: React.PointerEvent) => {
+      e.stopPropagation()
+      if (e.button !== 0) return
+      const fromPoint = currentPath.points.find(p => p.id === fromPointId)
+      const toPoint = currentPath.points.find(p => p.id === toPointId)
+      if (!fromPoint || !toPoint) return
+      dragState.current = {
+        kind: 'segment',
+        active: true,
+        segmentId,
+        fromPointId,
+        toPointId,
+        startX: e.clientX,
+        startY: e.clientY,
+        initialFromX: fromPoint.x,
+        initialFromY: fromPoint.y,
+        initialToX: toPoint.x,
+        initialToY: toPoint.y,
+        moved: false,
+      }
+    },
+    [currentPath.points]
+  )
+
   const handlePointDragStart = useCallback(
     (pointId: string, e: React.PointerEvent) => {
       e.stopPropagation()
       dragState.current = {
+        kind: 'point',
         active: true,
         pointId,
         startX: e.clientX,
@@ -267,6 +307,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
             onPointClick={handlePointClick}
             onSegmentClick={handleSegmentClick}
             onPointDragStart={handlePointDragStart}
+            onSegmentDragStart={handleSegmentDragStart}
           />
         ) : (
           <>
@@ -278,6 +319,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
               onPointClick={() => {}}
               onSegmentClick={() => {}}
               onPointDragStart={() => {}}
+              onSegmentDragStart={() => {}}
             />
             <SimulationLayer
               path={currentPath}
