@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, type ReactNode, type ReactElement } from 'react'
 import {
-  ArrowLeft, Search, X,
+  ArrowLeft, Search, X, Menu,
   Pen, MousePointer,
   Undo2, Redo2, FilePlus, History,
   Play, Link, Unlink,
@@ -1112,6 +1112,7 @@ export function ManualPage() {
   })
   const [query, setQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState(CATEGORIES[0].id)
+  const [tocOpen, setTocOpen] = useState(false)
   const mainRef = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
 
@@ -1177,6 +1178,16 @@ export function ManualPage() {
         <h1 className="text-[14px] font-semibold flex-1">
           {lang === 'ja' ? '使い方ガイド' : 'User Guide'}
         </h1>
+
+        {/* Mobile TOC button */}
+        <button
+          onClick={() => setTocOpen(true)}
+          className="md:hidden h-8 w-8 flex items-center justify-center rounded-[var(--r-md)] text-[var(--ink-2)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)] transition-colors"
+          aria-label={lang === 'ja' ? '目次を開く' : 'Open table of contents'}
+        >
+          <Menu size={16} strokeWidth={1.75} />
+        </button>
+
         <div className="flex items-center gap-0.5 rounded-[var(--r-md)] border border-[var(--line)] overflow-hidden">
           {(['ja', 'en'] as const).map(l => (
             <button
@@ -1193,6 +1204,62 @@ export function ManualPage() {
           ))}
         </div>
       </header>
+
+      {/* Mobile TOC drawer */}
+      {tocOpen && (
+        <div
+          className="fixed inset-0 z-40 md:hidden"
+          onClick={() => setTocOpen(false)}
+        >
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+          <div
+            className="absolute bottom-0 left-0 right-0 bg-[var(--surface)] border-t border-[var(--line)] rounded-t-[var(--r-lg)] shadow-[var(--sh-4)] max-h-[70vh] flex flex-col"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Drawer handle */}
+            <div className="flex justify-center pt-2.5 pb-1 flex-shrink-0">
+              <div className="w-8 h-1 rounded-full bg-[var(--line-strong)]" />
+            </div>
+
+            {/* Drawer header */}
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--line)] flex-shrink-0">
+              <span className="text-[13px] font-semibold text-[var(--ink)]">
+                {lang === 'ja' ? '目次' : 'Contents'}
+              </span>
+              <button
+                onClick={() => setTocOpen(false)}
+                className="h-7 w-7 flex items-center justify-center rounded-[var(--r-sm)] text-[var(--ink-3)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)] transition-colors"
+              >
+                <X size={15} strokeWidth={1.75} />
+              </button>
+            </div>
+
+            {/* Category list */}
+            <div className="overflow-y-auto p-2">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    setQuery('')
+                    setTocOpen(false)
+                    setTimeout(() => scrollToCategory(cat.id), 50)
+                  }}
+                  className={`w-full text-left px-3 py-2.5 rounded-[var(--r-md)] text-[13px] transition-colors ${
+                    activeCategory === cat.id && !query
+                      ? 'bg-[var(--signal-wash)] text-[var(--signal-ink)] font-semibold'
+                      : 'text-[var(--ink-2)] hover:bg-[var(--surface-2)]'
+                  }`}
+                >
+                  {lang === 'ja' ? cat.labelJa : cat.labelEn}
+                </button>
+              ))}
+            </div>
+
+            {/* Safe area padding for iOS */}
+            <div className="h-safe-bottom flex-shrink-0 pb-4" />
+          </div>
+        </div>
+      )}
 
       {/* Search */}
       <div className="px-4 py-2.5 border-b border-[var(--line)] bg-[var(--surface)] flex-shrink-0">
