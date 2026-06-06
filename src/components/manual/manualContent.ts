@@ -46,7 +46,7 @@ export const ENTRIES: ManualEntry[] = [
       { type: 'tip', text: '経路はブラウザのローカルデータベースに保存されるため、インターネット接続がなくても使えます。' },
     ],
     bodyEn: [
-      { type: 'p', text: 'A programming support app for planning and verifying Wire EDM machining paths. Simply tap to place points in sequence; Ortho mode automatically generates precise horizontal/vertical routes.' },
+      { type: 'p', text: 'A programming support app for planning and verifying Wire EDM machining paths. Click or tap to place points in sequence; Ortho mode automatically generates precise horizontal/vertical routes.' },
       { type: 'p', text: 'The simulation feature previews wire movement in real time, and paths are auto-saved in the browser. Works on smartphones, tablets, and PCs.' },
       { type: 'tip', text: 'Paths are stored in a local browser database, so no internet connection is required.' },
     ],
@@ -59,7 +59,7 @@ export const ENTRIES: ManualEntry[] = [
     bodyJa: [
       { type: 'p', text: 'アプリは大きく3つのエリアに分かれています。' },
       { type: 'steps', items: [
-        'ツールバー（上部）：新規作成・Undo/Redo・直交モード・スナップ・グリッド・シミュレーション・設定などのボタンが並びます',
+        'ツールバー（上部）：追加/編集モード切り替え・新規作成・Undo/Redo・直交モード・スナップ・グリッド・シミュレーション・設定などのボタンが並びます',
         'キャンバス（中央）：点を置いたり経路を操作したりするメインエリアです。左下に座標軸マーク（X→ Y↑）が常に表示されます',
         'サイドパネル（右側）：座標リストと保存済み経路の履歴が表示されます。スマートフォンでは右上のメニューボタンから引き出せます',
       ]},
@@ -68,7 +68,7 @@ export const ENTRIES: ManualEntry[] = [
     bodyEn: [
       { type: 'p', text: 'The app is divided into three main areas.' },
       { type: 'steps', items: [
-        'Toolbar (top): Contains buttons for New, Undo/Redo, Ortho, Snap, Grid, Simulation, and Settings',
+        'Toolbar (top): Contains buttons for Add/Edit mode toggle, New, Undo/Redo, Ortho, Snap, Grid, Simulation, and Settings',
         'Canvas (center): The main work area for placing and editing points. A coordinate axis marker (X→ Y↑) is always shown in the bottom-left corner',
         'Side panel (right): Shows the coordinate list and saved route history. On smartphones, open it by tapping the ≡ menu button in the top-right corner',
       ]},
@@ -125,7 +125,7 @@ export const ENTRIES: ManualEntry[] = [
     titleJa: 'タップして点を追加する',
     titleEn: 'Tap to add a point',
     bodyJa: [
-      { type: 'p', text: '追加モード中にキャンバスの空いた場所をタップすると、その位置に点が追加されます。最初の点はP1、次の点はP2と順番に番号が付きます。点が2つ以上になると、直前の点との間に自動的に線が引かれて経路が形成されます。' },
+      { type: 'p', text: '追加モード中にキャンバスの空いた場所をクリック（またはタップ）すると、その位置に点が追加されます。最初の点はP1、次の点はP2と順番に番号が付きます。点が2つ以上になると、直前の点との間に自動的に線が引かれて経路が形成されます。' },
       { type: 'steps', items: [
         '追加モードになっていることを確認する（ツールバーのペンアイコンが青い）',
         'キャンバスの追加したい位置をタップする',
@@ -134,7 +134,7 @@ export const ENTRIES: ManualEntry[] = [
       { type: 'tip', text: 'スナップがオンの場合、点はグリッドに自動で吸着します。グリッドに吸着させたくない場合はスナップをオフにしてください。' },
     ],
     bodyEn: [
-      { type: 'p', text: 'While in Add mode, tap any empty spot on the canvas to place a point. The first point is labeled P1, the next P2, and so on. Once two or more points exist, a line is automatically drawn between consecutive points to form the route.' },
+      { type: 'p', text: 'While in Add mode, click or tap any empty spot on the canvas to place a point. The first point is labeled P1, the next P2, and so on. Once two or more points exist, a line is automatically drawn between consecutive points to form the route.' },
       { type: 'steps', items: [
         'Confirm you are in Add mode (pen icon in the toolbar is highlighted blue)',
         'Tap the desired location on the canvas',
@@ -905,7 +905,7 @@ export const ENTRIES: ManualEntry[] = [
     bodyJa: [
       { type: 'p', text: '「スキップ」ボタンをタップすると、ワイヤーヘッドが経路の末尾（最終点）に瞬時に移動します。終点の位置だけを素早く確認したいときに便利です。' },
       { type: 'steps', items: [
-        'シミュレーション中またはON時にコントロールの「スキップ」ボタンをタップする',
+        'シミュレーション中（再生中・一時停止中どちらでも）コントロールの「スキップ」ボタンをタップする',
         'ワイヤーヘッドが終点に瞬時にジャンプする',
       ]},
     ],
@@ -1083,13 +1083,13 @@ export const ENTRIES: ManualEntry[] = [
     titleJa: '自動保存について',
     titleEn: 'About auto-save',
     bodyJa: [
-      { type: 'p', text: 'このアプリは経路の変更を自動でブラウザのデータベース（IndexedDB）に保存します。点を追加・移動・削除するたびに保存が行われるため、ページを閉じたり更新したりしても次回起動時に最後の状態から再開できます。' },
-      { type: 'p', text: '保存はブラウザのローカルストレージを使用しているため、インターネット接続がなくても機能します。ただし、ブラウザのキャッシュをクリアすると保存データが消える可能性があります。' },
+      { type: 'p', text: 'このアプリは経路の変更を自動でブラウザのデータベース（IndexedDB）に保存します。10秒ごと、またはページを閉じる際に自動保存されるため、ページを閉じたり更新したりしても次回起動時に最後の状態から再開できます。' },
+      { type: 'p', text: '保存はブラウザのローカルストレージを使用しているため、インターネット接続がなくても機能します。ただし、ブラウザの「サイトデータ」をクリアすると保存データが消える可能性があります（キャッシュのクリアでは消えません）。' },
       { type: 'tip', text: '大切な経路は「新規作成」ボタンで明示的に保存し、履歴からいつでも呼び出せる状態にしておくことをお勧めします。' },
     ],
     bodyEn: [
-      { type: 'p', text: 'The app automatically saves route changes to a browser database (IndexedDB) whenever you add, move, or delete a point. When you reload or reopen the page, the app resumes from where you left off.' },
-      { type: 'p', text: 'Storage is local to the browser and works without an internet connection. Note that clearing browser cache may delete saved data.' },
+      { type: 'p', text: 'The app automatically saves route changes to a browser database (IndexedDB) every 10 seconds and when you close or leave the page. When you reload or reopen the page, the app resumes from where you left off.' },
+      { type: 'p', text: 'Storage is local to the browser and works without an internet connection. Note that clearing browser site data may delete saved data — clearing the cache alone does not affect it.' },
       { type: 'tip', text: 'For important routes, explicitly save them with the New button so they appear in History and can always be recalled.' },
     ],
   },
