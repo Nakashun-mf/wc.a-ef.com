@@ -3,8 +3,6 @@ import { MousePointer, List, Play, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
-import { useAppStore } from '@/store/appStore'
-
 function OrthoStepIcon() {
   return (
     <svg width={15} height={15} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
@@ -23,7 +21,6 @@ function isOnboardingDone(): boolean {
 
 export function OnboardingDialog() {
   const { t } = useTranslation()
-  const setHelpOpen = useAppStore(s => s.setHelpOpen)
   const [open, setOpen] = useState(() => !isOnboardingDone())
 
   const handleClose = () => {
@@ -56,7 +53,7 @@ export function OnboardingDialog() {
       </Button>
 
       <button
-        onClick={() => { handleClose(); setHelpOpen(true) }}
+        onClick={() => { handleClose(); window.location.hash = '#/manual' }}
         className="mt-3 w-full flex items-center justify-center gap-1 text-[13px] text-[var(--signal-ink)] hover:opacity-70 transition-opacity"
       >
         {t('onboarding.helpLink')}

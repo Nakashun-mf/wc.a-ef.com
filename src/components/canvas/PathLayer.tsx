@@ -127,14 +127,20 @@ function PointMarker({ point, index, selected, constrained, labelAngle, showCoor
           </tspan>
         )}
       </text>
-      {constrained && (
-        <g
-          transform={`translate(${x + r + 1}, ${y - r - 9})`}
-          style={{ pointerEvents: 'none' }}
-        >
-          <Link size={9} color="var(--signal-ink)" strokeWidth={1.75} />
-        </g>
-      )}
+      {constrained && (() => {
+        // Place icon just to the right of the P-label text
+        const approxTextW = `P${index + 1}`.length * 6  // monospace 10px ≈ 6px/char
+        const textRightX = anchor === 'end' ? lx : anchor === 'start' ? lx + approxTextW : lx + approxTextW / 2
+        const iconCenterY = baseline === 'auto' ? ly - 5 : baseline === 'hanging' ? ly + 5 : ly
+        return (
+          <g
+            transform={`translate(${textRightX + 2}, ${iconCenterY - 4})`}
+            style={{ pointerEvents: 'none' }}
+          >
+            <Link size={9} color="var(--signal-ink)" strokeWidth={1.75} />
+          </g>
+        )
+      })()}
     </g>
   )
 }
