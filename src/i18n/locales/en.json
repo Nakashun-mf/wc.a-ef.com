@@ -26,7 +26,8 @@
     "point": "Point",
     "x": "X",
     "y": "Y",
-    "constrained": "Fixed"
+    "constrained": "Fixed",
+    "fixedTooltip": "Fixed (linked to other points)"
   },
   "history": {
     "open": "Open",
@@ -41,7 +42,11 @@
     "confirm": "Confirm",
     "cancel": "Cancel",
     "deletePoint": "Remove this point",
-    "releaseConstraint": "Release constraint"
+    "releaseConstraint": "Remove lock",
+    "constraintLinked": "Linked to other points",
+    "constraintNote": "Editing coordinates will automatically update linked points",
+    "releaseWith": "Remove link with {{point}}",
+    "linkedPoints": "Changing {{axis}} also updates {{points}}"
   },
   "confirm": {
     "deletePoint": "Remove this point?",

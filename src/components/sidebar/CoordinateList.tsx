@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { Link, Trash2, Unlink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '@/store/appStore'
-import { getConstrainedPointIds, roundToDisplay } from '@/domain/utils'
+import { getConstrainedPointIds, roundToDisplay, approxEqual } from '@/domain/utils'
 import { Button } from '@/components/ui/Button'
 import { CoordEditDialog } from '@/components/dialogs/CoordEditDialog'
 import { ConfirmDialog } from '@/components/dialogs/ConfirmDialog'
 import { Tooltip } from '@/components/ui/Tooltip'
-import type { Point } from '@/domain/types'
+import type { Point, WirePath } from '@/domain/types'
 
 interface EditState {
   pointId: string
@@ -27,8 +27,20 @@ export function CoordinateList() {
   const [editDialog, setEditDialog] = useState<{ point: Point } | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [releaseConfirm, setReleaseConfirm] = useState<string | null>(null)
+  const [flashedIds, setFlashedIds] = useState<Set<string>>(new Set())
 
   const constrainedIds = getConstrainedPointIds(currentPath)
+
+  const handleEdit = (point: Point, axis: 'x' | 'y', val: number) => {
+    const willFlash = currentPath.points
+      .filter(p => p.id !== point.id && constrainedIds.has(p.id) && approxEqual(p[axis], point[axis]))
+      .map(p => p.id)
+    editCoordinate(point.id, axis, val)
+    if (willFlash.length > 0) {
+      setFlashedIds(new Set(willFlash))
+      setTimeout(() => setFlashedIds(new Set()), 1000)
+    }
+  }
 
   if (currentPath.points.length === 0) {
     return (
@@ -59,13 +71,16 @@ export function CoordinateList() {
           {currentPath.points.map((point, idx) => {
             const isSelected = point.id === selectedPointId
             const isConstrained = constrainedIds.has(point.id)
+            const isFlashed = flashedIds.has(point.id)
             return (
               <tr
                 key={point.id}
-                className={`border-b border-[var(--line)] cursor-pointer transition-colors ${
-                  isSelected
-                    ? 'bg-[var(--signal-wash)]'
-                    : 'hover:bg-[var(--surface-2)]'
+                className={`border-b border-[var(--line)] cursor-pointer transition-colors duration-100 ${
+                  isFlashed
+                    ? 'bg-[var(--warn-wash)]'
+                    : isSelected
+                      ? 'bg-[var(--signal-wash)]'
+                      : 'hover:bg-[var(--surface-2)]'
                 }`}
                 onClick={() => {
                   selectPoint(isSelected ? null : point.id)
@@ -79,7 +94,11 @@ export function CoordinateList() {
                       P{idx + 1}
                     </span>
                     {isConstrained && (
-                      <Link size={11} className="text-[var(--signal-ink)]" strokeWidth={1.75} />
+                      <Tooltip content={t('coordinates.fixedTooltip')} side="right">
+                        <span className="inline-flex">
+                          <Link size={11} className="text-[var(--signal-ink)]" strokeWidth={1.75} />
+                        </span>
+                      </Tooltip>
                     )}
                   </div>
                 </td>
@@ -145,7 +164,9 @@ export function CoordinateList() {
               </div>
               <InlineCoordEdit
                 point={point}
-                onEdit={(axis, val) => editCoordinate(point.id, axis, val)}
+                currentPath={currentPath}
+                constrainedIds={constrainedIds}
+                onEdit={(axis, val) => handleEdit(point, axis, val)}
               />
             </div>
           )
@@ -193,15 +214,37 @@ export function CoordinateList() {
 
 interface InlineCoordEditProps {
   point: Point
+  currentPath: WirePath
+  constrainedIds: Set<string>
   onEdit: (axis: 'x' | 'y', value: number) => void
 }
 
-function InlineCoordEdit({ point, onEdit }: InlineCoordEditProps) {
+function getLinkedIndices(
+  point: Point,
+  axis: 'x' | 'y',
+  path: WirePath,
+  constrainedIds: Set<string>
+): number[] {
+  return path.points
+    .map((p, idx) => ({ p, idx }))
+    .filter(({ p }) =>
+      p.id !== point.id &&
+      constrainedIds.has(p.id) &&
+      approxEqual(p[axis], point[axis])
+    )
+    .map(({ idx }) => idx)
+}
+
+function InlineCoordEdit({ point, currentPath, constrainedIds, onEdit }: InlineCoordEditProps) {
+  const { t } = useTranslation()
   const [editState, setEditState] = useState<EditState>({
     pointId: point.id,
     x: roundToDisplay(point.x).toFixed(2),
     y: roundToDisplay(point.y).toFixed(2),
   })
+
+  const xLinked = getLinkedIndices(point, 'x', currentPath, constrainedIds)
+  const yLinked = getLinkedIndices(point, 'y', currentPath, constrainedIds)
 
   const handleBlur = (axis: 'x' | 'y') => {
     const raw = axis === 'x' ? editState.x : editState.y
@@ -221,27 +264,43 @@ function InlineCoordEdit({ point, onEdit }: InlineCoordEditProps) {
   }
 
   return (
-    <div className="flex gap-2">
-      {(['x', 'y'] as const).map(axis => (
-        <label key={axis} className="flex-1">
-          <span className="block font-mono text-[11px] uppercase tracking-wider text-[var(--ink-3)] mb-1">
-            {axis.toUpperCase()} mm
-          </span>
-          <input
-            type="number"
-            step="0.01"
-            value={editState[axis]}
-            onChange={e =>
-              setEditState(prev => ({ ...prev, [axis]: e.target.value }))
-            }
-            onBlur={() => handleBlur(axis)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
-            }}
-            className="w-full px-2 py-1.5 text-[13px] font-mono bg-[var(--surface)] border border-[var(--line-2)] rounded-[var(--r-sm)] text-[var(--ink)] focus:outline-none focus:border-[var(--signal)] focus:ring-1 focus:ring-[var(--signal)]"
-          />
-        </label>
-      ))}
+    <div className="space-y-1.5">
+      <div className="flex gap-2">
+        {(['x', 'y'] as const).map(axis => (
+          <label key={axis} className="flex-1">
+            <span className="block font-mono text-[11px] uppercase tracking-wider text-[var(--ink-3)] mb-1">
+              {axis.toUpperCase()} mm
+            </span>
+            <input
+              type="number"
+              step="0.01"
+              value={editState[axis]}
+              onChange={e =>
+                setEditState(prev => ({ ...prev, [axis]: e.target.value }))
+              }
+              onBlur={() => handleBlur(axis)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
+              }}
+              className="w-full px-2 py-1.5 text-[13px] font-mono bg-[var(--surface)] border border-[var(--line-2)] rounded-[var(--r-sm)] text-[var(--ink)] focus:outline-none focus:border-[var(--signal)] focus:ring-1 focus:ring-[var(--signal)]"
+            />
+          </label>
+        ))}
+      </div>
+      {(xLinked.length > 0 || yLinked.length > 0) && (
+        <div className="space-y-0.5 pt-0.5">
+          {xLinked.length > 0 && (
+            <p className="text-[11px] text-[var(--ink-3)]">
+              {t('edit.linkedPoints', { axis: 'X', points: xLinked.map(i => `P${i + 1}`).join('・') })}
+            </p>
+          )}
+          {yLinked.length > 0 && (
+            <p className="text-[11px] text-[var(--ink-3)]">
+              {t('edit.linkedPoints', { axis: 'Y', points: yLinked.map(i => `P${i + 1}`).join('・') })}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   )
 }
