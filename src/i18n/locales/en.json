@@ -81,12 +81,31 @@
   },
   "onboarding": {
     "title": "How to use",
-    "step1": "Tap the canvas to place points",
-    "step2": "Edit coordinates directly in the list",
-    "step3": "Ortho mode creates right-angle routes automatically",
-    "step4": "Use simulation to preview the machining route",
+    "prev": "Back",
+    "next": "Next",
     "close": "Get started",
-    "helpLink": "See detailed instructions"
+    "skip": "Skip",
+    "helpLink": "See detailed instructions",
+    "page1": {
+      "title": "Tap the canvas to place points",
+      "body": "Click or tap the canvas to add points. Points connect in sequence to form the wire EDM machining route."
+    },
+    "page2": {
+      "title": "Edit coordinates directly",
+      "body": "Enter X and Y values directly in the sidebar list. Long-press (press and hold) a point to open a dialog for editing coordinates or removing the point."
+    },
+    "page3": {
+      "title": "Ortho mode and fixed segments",
+      "body": "Turn on Ortho mode to automatically create right-angle routes. Right-angle segments are kept as fixed and can be released from the long-press menu."
+    },
+    "page4": {
+      "title": "Snap, grid, and history",
+      "body": "Enable Snap to attract points to existing ones. Show the grid for coordinate reference. Routes are auto-saved and can be reloaded from the History panel."
+    },
+    "page5": {
+      "title": "Simulation and keyboard shortcuts",
+      "body": "Click Simulate to preview the machining route.\nCtrl + Z to undo, Ctrl + Y to redo."
+    }
   },
   "help": {
     "title": "How to use",
