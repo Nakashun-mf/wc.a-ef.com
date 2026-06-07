@@ -163,6 +163,7 @@ export function Canvas({ onPointLongPress, onPointClick }: CanvasProps) {
   const handlePointDragStart = useCallback(
     (pointId: string, e: React.PointerEvent) => {
       e.stopPropagation()
+      svgRef.current?.setPointerCapture(e.pointerId)
       dragState.current = {
         active: true,
         pointId,
